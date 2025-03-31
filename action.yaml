@@ -27,6 +27,14 @@ inputs:
     required: false
     default: ''
 
+outputs:
+  coverageThresholdMet:
+    description: Whether the code coverage threshold was met (true/false)
+    value: ${{ steps.checkCoverage.outputs.thresholdMet }}
+  lineCoverage:
+    description: The actual code coverage percentage
+    value: ${{ steps.checkCoverage.outputs.lineCoverage }}
+
 runs:
   using: composite
   steps:
@@ -112,17 +120,27 @@ runs:
       shell: bash
       run: cat ./covered-test-results/reports/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
 
-    - name: Check for passing code coverage
+    - id: checkCoverage
+      name: Check for passing code coverage
       if: steps.findProjects.outputs.testsExist == 'true' && always()
       shell: bash
       run: |
         # | **Line coverage:** | 92.6% (830 of 896) | -> 92.6% (830 of 896) -> 92.6%
         coverage=$(grep "\*\*Line coverage:\*\*" ./covered-test-results/reports/SummaryGithub.md | awk -F '|' '{print $3}' | awk '{print $1}')
+
         # Remove the '%' sign for comparison
         coverage=${coverage%\%}
+
+        # Set output
+        echo "coverage=$coverage" >> $GITHUB_OUTPUT
+
         if (( $(echo "$coverage < ${{ inputs.coverageThreshold }}" | bc -l) )); then
-          echo "Code coverage must be at least ${{ inputs.coverageThreshold }}%, but was $coverage%"
-          echo "# Code coverage Failure" >> $GITHUB_STEP_SUMMARY
-          echo "Code coverage must be at least ${{ inputs.coverageThreshold }}%, but was $coverage%" >> $GITHUB_STEP_SUMMARY
-          exit 1
+            echo "Code coverage must be at least ${{ inputs.coverageThreshold }}%, but was $coverage%"
+            echo "# Code coverage Failure" >> $GITHUB_STEP_SUMMARY
+            echo "Code coverage must be at least ${{ inputs.coverageThreshold }}%, but was $coverage%" >> $GITHUB_STEP_SUMMARY
+
+            echo "thresholdMet=false" >> $GITHUB_OUTPUT
+            exit 1
+        else
+            echo "thresholdMet=true" >> $GITHUB_OUTPUT
         fi

@@ -20,34 +20,36 @@ runs:
 
         # Back up the original test-dotnet.sh
         if [ -f "${{ github.workspace }}/test-dotnet.sh" ]; then
-          cp "${{ github.workspace }}/test-dotnet.sh" "${{ github.workspace }}/test-dotnet.sh.bak"
+            cp "${{ github.workspace }}/test-dotnet.sh" "${{ github.workspace }}/test-dotnet.sh.bak"
         fi
 
         # Replace with our mock version
         cp "${{ github.workspace }}/tests/code-coverage-test/test-dotnet.sh" "${{ github.workspace }}/test-dotnet.sh"
 
-    - name: Run test-dotnet action
+    - id: test
+      name: Run test-dotnet action
       uses: ./
       with:
         nugetAuthToken: fake-token
         unitTestProjects: "./tests/code-coverage-test/**/*.UnitTests.csproj"
         coverageThreshold: "50"
 
-    - name: Assert coverage report was published
+    - name: Assert coverage result was published
       shell: bash
       if: always()
       run: |
         source ${{ github.workspace }}/tests/test-reporter.sh
-        set_test_name "Assert coverage report was published"
+        set_test_name "Assert coverage result was published"
 
-        grep_output=$(grep -A 3 "Line coverage:" $GITHUB_STEP_SUMMARY 2>/dev/null || echo "Not found")
-
-        if [[ "$grep_output" == *"50%"* ]]; then
-          success "Coverage report was published"
+        # Check if we got a coverage result
+        if [ -n "${{ steps.test.outputs.coverage }}" ]; then
+            if [ "${{ steps.test.outputs.coverage }}" == "50" ]; then
+                success "Coverage result was published correctly: ${{ steps.test.outputs.coverage }}%"
+            else
+                failure "Coverage result was published but with unexpected value: ${{ steps.test.outputs.coverage }}%"
+            fi
         else
-          failure "Coverage report was not published"
-          echo "Contents of GITHUB_STEP_SUMMARY:"
-          cat $GITHUB_STEP_SUMMARY
+            failure "Coverage result was not published (no output value)"
         fi
 
     - name: Assert coverage threshold check passed
@@ -57,10 +59,10 @@ runs:
         source ${{ github.workspace }}/tests/test-reporter.sh
         set_test_name "Assert coverage threshold check passed"
 
-        if ! grep -q "Code coverage Failure" $GITHUB_STEP_SUMMARY; then
-          success "Coverage threshold check passed"
+        if [ "${{ steps.test.outputs.coverageThresholdMet }}" == "true" ]; then
+            success "Coverage threshold check passed"
         else
-          failure "Coverage threshold check failed when it should have passed"
+            failure "Coverage threshold check failed when it should have passed"
         fi
 
     - name: Clean up test environment
@@ -69,7 +71,7 @@ runs:
       run: |
         # Restore the original test-dotnet.sh
         if [ -f "${{ github.workspace }}/test-dotnet.sh.bak" ]; then
-          mv "${{ github.workspace }}/test-dotnet.sh.bak" "${{ github.workspace }}/test-dotnet.sh"
+            mv "${{ github.workspace }}/test-dotnet.sh.bak" "${{ github.workspace }}/test-dotnet.sh"
         fi
 
     - name: Finalize test
