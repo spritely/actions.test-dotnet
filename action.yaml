@@ -82,7 +82,7 @@ runs:
         # Set output variables
         echo "testDotnetDirectory=$temp_dir" >> $GITHUB_OUTPUT
 
-    - name: dotnet test Release
+    - name: Run tests
       if: steps.findProjects.outputs.testsExist == 'true'
       uses: devcontainers/ci@v0.3
       with:
@@ -96,8 +96,8 @@ runs:
 
     - name: Add test report title
       if: always()
-      run: |
-        echo "# Test Results" >> $GITHUB_STEP_SUMMARY
+      shell: bash
+      run: echo "# Test Results" >> $GITHUB_STEP_SUMMARY
 
     - name: Publish test results
       if: steps.findProjects.outputs.testsExist == 'true' && always()
