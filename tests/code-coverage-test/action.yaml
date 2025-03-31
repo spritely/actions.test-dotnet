@@ -30,7 +30,7 @@ runs:
       uses: ./
       with:
         nugetAuthToken: fake-token
-        unitTestProjects: "tests/code-coverage-test/**/*.UnitTests.csproj"
+        unitTestProjects: "./tests/code-coverage-test/**/*.UnitTests.csproj"
         coverageThreshold: "50"
 
     - name: Assert coverage report was published
