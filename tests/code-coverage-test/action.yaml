@@ -30,7 +30,7 @@ runs:
       uses: ./
       with:
         nugetAuthToken: fake-token
-        unitTestProjects: "tests/unit-test-workflow/**/*.UnitTests.csproj"
+        unitTestProjects: "tests/code-coverage-test/**/*.UnitTests.csproj"
         coverageThreshold: "50"
 
     - name: Assert coverage report was published
@@ -43,9 +43,9 @@ runs:
         grep_output=$(grep -A 3 "Line coverage:" $GITHUB_STEP_SUMMARY 2>/dev/null || echo "Not found")
 
         if [[ "$grep_output" == *"50%"* ]]; then
-          success "Coverage report was published correctly"
+          success "Coverage report was published"
         else
-          failure "Coverage report was not published correctly"
+          failure "Coverage report was not published"
           echo "Contents of GITHUB_STEP_SUMMARY:"
           cat $GITHUB_STEP_SUMMARY
         fi
@@ -58,7 +58,7 @@ runs:
         set_test_name "Assert coverage threshold check passed"
 
         if ! grep -q "Code coverage Failure" $GITHUB_STEP_SUMMARY; then
-          success "Coverage threshold check passed correctly"
+          success "Coverage threshold check passed"
         else
           failure "Coverage threshold check failed when it should have passed"
         fi
