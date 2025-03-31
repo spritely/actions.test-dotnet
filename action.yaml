@@ -3,13 +3,7 @@ description: Runs dotnet test on all unitTestProjects, collects code coverage, a
 
 inputs:
   nugetAuthToken:
-    description: The NuGet authentication token to use when pushing or pulling packages.
-    required: true
-  registryUsername:
-    description: The username to use to authenticate with the container registry.
-    required: true
-  registryPassword:
-    description: The token to use to authenticate with the container registry.
+    description: The NuGet authentication token to use to pull packages.
     required: true
   unitTestProjects:
     # It is important to only pass 'Unit' test projects since the build won't be deployed yet and thus these tests cannot depend on anything in the environment to run
@@ -20,14 +14,18 @@ inputs:
     description: The minimum code coverage percentage required for the build to pass. Defaults to 90
     required: false
     default: "90"
-  workingDirectory:
-    description: The directory to run the git commands in. Defaults to ./src/
-    required: false
-    default: ./src/
   registryHost:
-    description: The host of the container registry to push to. Defaults to ghcr.io
+    description: The host of the container registry to pull devcontainers from. If not provided, no login will be performed.
     required: false
-    default: ghcr.io
+    default: ''
+  registryUsername:
+    description: The username to use to authenticate with the container registry for pulling devcontainers. If not provided, no login will be performed.
+    required: false
+    default: ''
+  registryPassword:
+    description: The token to use to authenticate with the container registry for pulling devcontainers. If not provided, no login will be performed.
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -35,7 +33,6 @@ runs:
     - id: findProjects
       name: Find unit test projects - ${{ inputs.unitTestProjects }}
       shell: bash
-      working-directory: ${{ inputs.workingDirectory }}
       run: |
         tests_exist=false
         if test -n "$(find . -type f -iwholename "${{ inputs.unitTestProjects }}" -print -quit)"; then
@@ -48,7 +45,7 @@ runs:
         echo "testsExist=$tests_exist" >> $GITHUB_OUTPUT
 
     - name: Login to GitHub Container Registry
-      if: steps.findProjects.outputs.testsExist == 'true'
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
       uses: docker/login-action@v3
       with:
         registry: ${{ inputs.registryHost }}
@@ -58,7 +55,6 @@ runs:
     - name: Create .env for build
       if: steps.findProjects.outputs.testsExist == 'true'
       shell: bash
-      working-directory: ${{ inputs.workingDirectory }}
       run: |
         cat > ./.devcontainer/.env <<EOF
         EOF
@@ -67,7 +63,6 @@ runs:
       if: steps.findProjects.outputs.testsExist == 'true'
       uses: devcontainers/ci@v0.3
       with:
-        subFolder: ${{ inputs.workingDirectory }}
         runCmd: |
           chmod +x ./test.sh
           ./test.sh
@@ -83,18 +78,15 @@ runs:
         name: Unit Test Results
         reporter: dotnet-trx
         path: "**/*.trx"
-        working-directory: ${{ inputs.workingDirectory }}
 
     - name: Publish code coverage report
       if: steps.findProjects.outputs.testsExist == 'true' && always()
       shell: bash
-      working-directory: ${{ inputs.workingDirectory }}
       run: cat ./TestResults/Coverage/Reports/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
 
     - name: Check for passing code coverage
       if: steps.findProjects.outputs.testsExist == 'true' && always()
       shell: bash
-      working-directory: ${{ inputs.workingDirectory }}
       run: |
         # | **Line coverage:** | 92.6% (830 of 896) | -> 92.6% (830 of 896) -> 92.6%
         coverage=$(grep "\*\*Line coverage:\*\*" ./TestResults/Coverage/Reports/SummaryGithub.md | awk -F '|' '{print $3}' | awk '{print $1}')
