@@ -1,0 +1,80 @@
+name: Test dotnet produces code coverage report
+description: Test to validate that test dotnet produces code coverage report
+
+runs:
+  using: composite
+  steps:
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "Test dotnet  produces code coverage report" "code-coverage-test"
+
+    - name: Prepare test environment
+      shell: bash
+      run: |
+        mkdir -p "${{ github.workspace }}/covered-test-results/"
+
+        # Copy the mock coverage report from the test resources
+        cp -r "${{ github.workspace }}/tests/code-coverage-test/covered-test-results/." "${{ github.workspace }}/covered-test-results/"
+
+        # Back up the original test-dotnet.sh
+        if [ -f "${{ github.action_path }}/test-dotnet.sh" ]; then
+          cp "${{ github.action_path }}/test-dotnet.sh" "${{ github.action_path }}/test-dotnet.sh.bak"
+        fi
+
+        # Replace with our mock version
+        cp "${{ github.workspace }}/tests/code-coverage-test/test-dotnet.sh" "${{ github.action_path }}/test-dotnet.sh"
+
+    - name: Run test-dotnet action
+      uses: ./
+      with:
+        nugetAuthToken: fake-token
+        unitTestProjects: "tests/unit-test-workflow/**/*.UnitTests.csproj"
+        coverageThreshold: "50"
+
+    - name: Assert coverage report was published
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert coverage report was published"
+
+        grep_output=$(grep -A 3 "Line coverage:" $GITHUB_STEP_SUMMARY 2>/dev/null || echo "Not found")
+
+        if [[ "$grep_output" == *"50%"* ]]; then
+          success "Coverage report was published correctly"
+        else
+          failure "Coverage report was not published correctly"
+          echo "Contents of GITHUB_STEP_SUMMARY:"
+          cat $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Assert coverage threshold check passed
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert coverage threshold check passed"
+
+        if ! grep -q "Code coverage Failure" $GITHUB_STEP_SUMMARY; then
+          success "Coverage threshold check passed correctly"
+        else
+          failure "Coverage threshold check failed when it should have passed"
+        fi
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Restore the original test-dotnet.sh
+        if [ -f "${{ github.action_path }}/test-dotnet.sh.bak" ]; then
+          mv "${{ github.action_path }}/test-dotnet.sh.bak" "${{ github.action_path }}/test-dotnet.sh"
+        fi
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test

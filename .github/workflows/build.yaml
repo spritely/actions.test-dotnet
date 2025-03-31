@@ -1,0 +1,41 @@
+name: Build
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-24.04
+    steps:
+      - id: version
+        name: Get semantic version
+        uses: spritely/actions.semantic-version/get@v0.2.2
+
+      - name: Create .env for build
+        shell: bash
+        run: |
+          cat > ./.devcontainer/.env <<EOF
+          EOF
+
+      - name: Run test - code-coverage-test
+        uses: ./tests/code-coverage-test
+        if: always()
+
+      - name: Add test report title
+        if: always()
+        run: |
+          echo "# Test Results" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate test report
+        uses: dorny/test-reporter@v2.0.0
+        if: always()
+        with:
+          name: Test Results
+          path: test-results/*.xml
+          reporter: java-junit
+
+      - name: Apply semantic version
+        if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
+        uses: spritely/actions.semantic-version/apply@v0.2.2
+        with:
+          version: ${{ steps.version.outputs.version }}

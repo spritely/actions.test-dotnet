@@ -36,7 +36,8 @@ runs:
       run: |
         tests_exist=false
         if test -n "$(find . -type f -iwholename "${{ inputs.unitTestProjects }}" -print -quit)"; then
-            echo "Found unit test projects matching ${{ inputs.unitTestProjects }}"
+            echo "Found unit test projects matching ${{ inputs.unitTestProjects }}:"
+            find . -type f -iwholename "${{ inputs.unitTestProjects }}" -exec echo {} \;
             tests_exist=true
         else
             echo "No unit test projects found matching ${{ inputs.unitTestProjects }}"
@@ -52,44 +53,71 @@ runs:
         username: ${{ inputs.registryUsername }}
         password: ${{ inputs.registryPassword }}
 
-    - name: Create .env for build
-      if: steps.findProjects.outputs.testsExist == 'true'
+    - id: prepare
+      name: Prepare devcontainer environment
       shell: bash
       run: |
-        cat > ./.devcontainer/.env <<EOF
-        EOF
+        mkdir -p ./.devcontainer
+        touch ./.devcontainer/.env
+
+        # Need to copy the build script files to a path that will work inside the devcontainer
+        # Find a path that will not conflict with user files
+        base_dir=".github-actions-test-dotnet"
+        temp_dir="$base_dir"
+        counter=1
+
+        # Find a unique directory name
+        while [ -e "$temp_dir" ]; do
+          temp_dir="${base_dir}-${counter}"
+          counter=$((counter + 1))
+        done
+
+        # Create the directory and copy the script
+        mkdir -p "$temp_dir"
+        cp "${{ github.action_path }}/test-dotnet.sh" "$temp_dir/test-dotnet.sh"
+        chmod +x "$temp_dir/test-dotnet.sh"
+
+        echo "Using temporary directory: $temp_dir"
+
+        # Set output variables
+        echo "testDotnetDirectory=$temp_dir" >> $GITHUB_OUTPUT
 
     - name: dotnet test Release
       if: steps.findProjects.outputs.testsExist == 'true'
       uses: devcontainers/ci@v0.3
       with:
         runCmd: |
-          chmod +x ./test.sh
-          ./test.sh
+          chmod +x "/src/${{ steps.prepare.outputs.testDotnetDirectory }}/test-dotnet.sh"
+          "/src/${{ steps.prepare.outputs.testDotnetDirectory }}/test-dotnet.sh" "${{ inputs.unitTestProjects }}"
         push: never
         env: |
           NUGET_USER=${{ github.actor }}
           NUGET_TOKEN=${{ inputs.nugetAuthToken }}
+
+    - name: Add test report title
+      if: always()
+      run: |
+        echo "# Test Results" >> $GITHUB_STEP_SUMMARY
 
     - name: Publish test results
       if: steps.findProjects.outputs.testsExist == 'true' && always()
       uses: dorny/test-reporter@v1
       with:
         name: Unit Test Results
-        reporter: dotnet-trx
         path: "**/*.trx"
+        reporter: dotnet-trx
 
     - name: Publish code coverage report
       if: steps.findProjects.outputs.testsExist == 'true' && always()
       shell: bash
-      run: cat ./TestResults/Coverage/Reports/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+      run: cat ./covered-test-results/reports/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
 
     - name: Check for passing code coverage
       if: steps.findProjects.outputs.testsExist == 'true' && always()
       shell: bash
       run: |
         # | **Line coverage:** | 92.6% (830 of 896) | -> 92.6% (830 of 896) -> 92.6%
-        coverage=$(grep "\*\*Line coverage:\*\*" ./TestResults/Coverage/Reports/SummaryGithub.md | awk -F '|' '{print $3}' | awk '{print $1}')
+        coverage=$(grep "\*\*Line coverage:\*\*" ./covered-test-results/reports/SummaryGithub.md | awk -F '|' '{print $3}' | awk '{print $1}')
         # Remove the '%' sign for comparison
         coverage=${coverage%\%}
         if (( $(echo "$coverage < ${{ inputs.coverageThreshold }}" | bc -l) )); then
