@@ -11,12 +11,6 @@ jobs:
         name: Get semantic version
         uses: spritely/actions.semantic-version/get@v0.2.2
 
-      - name: Create .env for build
-        shell: bash
-        run: |
-          cat > ./.devcontainer/.env <<EOF
-          EOF
-
       - name: Run test - code-coverage-test
         uses: ./tests/code-coverage-test
         if: always()

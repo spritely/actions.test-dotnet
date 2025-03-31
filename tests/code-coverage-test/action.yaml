@@ -8,7 +8,7 @@ runs:
       shell: bash
       run: |
         source ${{ github.workspace }}/tests/test-reporter.sh
-        initialize_test "Test dotnet  produces code coverage report" "code-coverage-test"
+        initialize_test "Test dotnet produces code coverage report" "code-coverage-test"
 
     - name: Prepare test environment
       shell: bash
@@ -19,12 +19,12 @@ runs:
         cp -r "${{ github.workspace }}/tests/code-coverage-test/covered-test-results/." "${{ github.workspace }}/covered-test-results/"
 
         # Back up the original test-dotnet.sh
-        if [ -f "${{ github.action_path }}/test-dotnet.sh" ]; then
-          cp "${{ github.action_path }}/test-dotnet.sh" "${{ github.action_path }}/test-dotnet.sh.bak"
+        if [ -f "${{ github.workspace }}/test-dotnet.sh" ]; then
+          cp "${{ github.workspace }}/test-dotnet.sh" "${{ github.workspace }}/test-dotnet.sh.bak"
         fi
 
         # Replace with our mock version
-        cp "${{ github.workspace }}/tests/code-coverage-test/test-dotnet.sh" "${{ github.action_path }}/test-dotnet.sh"
+        cp "${{ github.workspace }}/tests/code-coverage-test/test-dotnet.sh" "${{ github.workspace }}/test-dotnet.sh"
 
     - name: Run test-dotnet action
       uses: ./
@@ -68,8 +68,8 @@ runs:
       if: always()
       run: |
         # Restore the original test-dotnet.sh
-        if [ -f "${{ github.action_path }}/test-dotnet.sh.bak" ]; then
-          mv "${{ github.action_path }}/test-dotnet.sh.bak" "${{ github.action_path }}/test-dotnet.sh"
+        if [ -f "${{ github.workspace }}/test-dotnet.sh.bak" ]; then
+          mv "${{ github.workspace }}/test-dotnet.sh.bak" "${{ github.workspace }}/test-dotnet.sh"
         fi
 
     - name: Finalize test
