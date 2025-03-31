@@ -42,11 +42,11 @@ runs:
         set_test_name "Assert coverage result was published"
 
         # Check if we got a coverage result
-        if [ -n "${{ steps.test.outputs.coverage }}" ]; then
-            if [ "${{ steps.test.outputs.coverage }}" == "50" ]; then
-                success "Coverage result was published correctly: ${{ steps.test.outputs.coverage }}%"
+        if [ -n "${{ steps.test.outputs.lineCoverage }}" ]; then
+            if [ "${{ steps.test.outputs.lineCoverage }}" == "50" ]; then
+                success "Coverage result was published correctly: ${{ steps.test.outputs.lineCoverage }}%"
             else
-                failure "Coverage result was published but with unexpected value: ${{ steps.test.outputs.coverage }}%"
+                failure "Coverage result was published but with unexpected value: ${{ steps.test.outputs.lineCoverage }}%"
             fi
         else
             failure "Coverage result was not published (no output value)"

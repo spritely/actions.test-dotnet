@@ -132,7 +132,7 @@ runs:
         coverage=${coverage%\%}
 
         # Set output
-        echo "coverage=$coverage" >> $GITHUB_OUTPUT
+        echo "lineCoverage=$coverage" >> $GITHUB_OUTPUT
 
         if (( $(echo "$coverage < ${{ inputs.coverageThreshold }}" | bc -l) )); then
             echo "Code coverage must be at least ${{ inputs.coverageThreshold }}%, but was $coverage%"
