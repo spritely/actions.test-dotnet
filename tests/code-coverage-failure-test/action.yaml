@@ -44,7 +44,7 @@ runs:
         source ${{ github.workspace }}/tests/test-reporter.sh
         set_test_name "Assert coverage threshold check failed"
 
-        if [ "${{ steps.test.outputs.coverageThresholdMet }}" == "true" ]; then
+        if [ "${{ steps.test.outputs.coverageThresholdMet }}" == "false" ]; then
             success "Coverage threshold check failed as expected"
         else
             failure "Coverage threshold check passed when it should have failed"
