@@ -37,7 +37,7 @@ runs:
         unitTestProjects: "./tests/code-coverage-test/**/*.UnitTests.csproj"
         coverageThreshold: "80"
 
-    - name: Assert coverage threshold check passed
+    - name: Assert coverage threshold check failed
       shell: bash
       if: always()
       run: |
@@ -48,6 +48,20 @@ runs:
             success "Coverage threshold check failed as expected"
         else
             failure "Coverage threshold check passed when it should have failed"
+        fi
+
+    - name: Assert test action failed
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert test action failed"
+
+        # Check if the action step itself failed (which is expected)
+        if [ "${{ steps.test.outcome }}" != "failure" ]; then
+            success "Action step correctly failed with exit code 1"
+        else
+            failure "Action step did not fail as expected"
         fi
 
     - name: Clean up test environment
