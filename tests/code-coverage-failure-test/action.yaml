@@ -36,6 +36,7 @@ runs:
         nugetAuthToken: fake-token
         unitTestProjects: "./tests/code-coverage-test/**/*.UnitTests.csproj"
         coverageThreshold: "80"
+      continue-on-error: true # Failures here should not affect the overall build result
 
     - name: Assert coverage threshold check failed
       shell: bash
@@ -58,7 +59,7 @@ runs:
         set_test_name "Assert test action failed"
 
         # Check if the action step itself failed (which is expected)
-        if [ "${{ steps.test.outcome }}" != "failure" ]; then
+        if [ "${{ steps.test.outcome }}" == "failure" ]; then
             success "Action step correctly failed with exit code 1"
         else
             failure "Action step did not fail as expected"
