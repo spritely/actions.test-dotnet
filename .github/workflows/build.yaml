@@ -15,6 +15,11 @@ jobs:
         uses: ./tests/code-coverage-test
         if: always()
 
+      - name: Add test report title
+        if: always()
+        shell: bash
+        run: echo "# Test Results" >> $GITHUB_STEP_SUMMARY
+
       - name: Generate test report
         uses: dorny/test-reporter@v2.0.0
         if: always()
