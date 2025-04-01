@@ -33,6 +33,7 @@ runs:
         nugetAuthToken: fake-token
         unitTestProjects: "./tests/code-coverage-test/**/*.UnitTests.csproj"
         coverageThreshold: "50"
+        publishResults: false
 
     - name: Assert coverage result was published
       shell: bash
