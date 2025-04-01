@@ -1,0 +1,67 @@
+name: Test dotnet fails when code coverage is below threshold
+description: Test to validate that test dotnet fails when code coverage is below threshold
+
+# This test uses all the same files as code-coverage-test
+# Except that it changes the coverageThreshold for success and has different assertions
+
+runs:
+  using: composite
+  steps:
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "Test dotnet fails when code coverage is below threshold" "code-coverage-failure-test"
+
+    - name: Prepare test environment
+      shell: bash
+      run: |
+        mkdir -p "${{ github.workspace }}/covered-test-results/"
+
+        # Copy the mock coverage report from the test resources
+        cp -r "${{ github.workspace }}/tests/code-coverage-test/covered-test-results/." "${{ github.workspace }}/covered-test-results/"
+
+        # Back up the original test-dotnet.sh
+        if [ -f "${{ github.workspace }}/test-dotnet.sh" ]; then
+            cp "${{ github.workspace }}/test-dotnet.sh" "${{ github.workspace }}/test-dotnet.sh.bak"
+        fi
+
+        # Replace with our mock version
+        cp "${{ github.workspace }}/tests/code-coverage-test/test-dotnet.sh" "${{ github.workspace }}/test-dotnet.sh"
+
+    - id: test
+      name: Run test-dotnet action
+      uses: ./
+      with:
+        nugetAuthToken: fake-token
+        unitTestProjects: "./tests/code-coverage-test/**/*.UnitTests.csproj"
+        coverageThreshold: "80"
+
+    - name: Assert coverage threshold check passed
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert coverage threshold check failed"
+
+        if [ "${{ steps.test.outputs.coverageThresholdMet }}" == "true" ]; then
+            success "Coverage threshold check failed as expected"
+        else
+            failure "Coverage threshold check passed when it should have failed"
+        fi
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Restore the original test-dotnet.sh
+        if [ -f "${{ github.workspace }}/test-dotnet.sh.bak" ]; then
+            mv "${{ github.workspace }}/test-dotnet.sh.bak" "${{ github.workspace }}/test-dotnet.sh"
+        fi
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test
