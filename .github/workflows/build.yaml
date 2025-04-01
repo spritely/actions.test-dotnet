@@ -15,6 +15,10 @@ jobs:
         uses: ./tests/code-coverage-test
         if: always()
 
+      - name: Run test - code-coverage-failure-test
+        uses: ./tests/code-coverage-failure-test
+        if: always()
+
       - name: Add test report title
         if: always()
         shell: bash
