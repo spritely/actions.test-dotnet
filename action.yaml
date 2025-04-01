@@ -14,6 +14,10 @@ inputs:
     description: The minimum code coverage percentage required for the build to pass. Defaults to 90
     required: false
     default: "90"
+  publishResults:
+    description: Whether to publish test and coverage results to GitHub step summary. Defaults to true. Set to 'false' to disable publishing.
+    required: false
+    default: 'true'
   registryHost:
     description: The host of the container registry to pull devcontainers from. If not provided, no login will be performed.
     required: false
@@ -102,24 +106,6 @@ runs:
           NUGET_USER=${{ github.actor }}
           NUGET_TOKEN=${{ inputs.nugetAuthToken }}
 
-    - name: Add test report title
-      if: always()
-      shell: bash
-      run: echo "# Test Results" >> $GITHUB_STEP_SUMMARY
-
-    - name: Publish test results
-      if: steps.findProjects.outputs.testsExist == 'true' && always()
-      uses: dorny/test-reporter@v2.0.0
-      with:
-        name: Unit Test Results
-        path: "**/*.trx"
-        reporter: dotnet-trx
-
-    - name: Publish code coverage report
-      if: steps.findProjects.outputs.testsExist == 'true' && always()
-      shell: bash
-      run: cat ./covered-test-results/reports/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
-
     - id: checkCoverage
       name: Check for passing code coverage
       if: steps.findProjects.outputs.testsExist == 'true' && always()
@@ -134,13 +120,53 @@ runs:
         # Set output
         echo "lineCoverage=$coverage" >> $GITHUB_OUTPUT
 
+        # Check if coverage meets threshold
         if (( $(echo "$coverage < ${{ inputs.coverageThreshold }}" | bc -l) )); then
-            echo "Code coverage must be at least ${{ inputs.coverageThreshold }}%, but was $coverage%"
-            echo "# Code coverage Failure" >> $GITHUB_STEP_SUMMARY
-            echo "Code coverage must be at least ${{ inputs.coverageThreshold }}%, but was $coverage%" >> $GITHUB_STEP_SUMMARY
-
             echo "thresholdMet=false" >> $GITHUB_OUTPUT
             exit 1
         else
             echo "thresholdMet=true" >> $GITHUB_OUTPUT
         fi
+
+    - name: Prepare code coverage report
+      if: steps.findProjects.outputs.testsExist == 'true' && always()
+      shell: bash
+      run: |
+        # Replace "# Summary" with "# Code Coverage Results" in the file
+        sed -i 's/# Summary/# Code Coverage Results/' ./covered-test-results/reports/SummaryGithub.md
+
+        # Add the threshold information to the end of the report
+        echo "" >> ./covered-test-results/reports/SummaryGithub.md
+        echo "## Coverage Threshold" >> ./covered-test-results/reports/SummaryGithub.md
+        echo "" >> ./covered-test-results/reports/SummaryGithub.md
+        echo "Required minimum: ${{ inputs.coverageThreshold }}%" >> ./covered-test-results/reports/SummaryGithub.md
+        echo "Actual coverage: ${{ steps.checkCoverage.outputs.lineCoverage }}%" >> ./covered-test-results/reports/SummaryGithub.md
+
+        if [ "${{ steps.checkCoverage.outputs.thresholdMet }}" == "true" ]; then
+            echo "✅ **Coverage threshold met**" >> ./covered-test-results/reports/SummaryGithub.md
+        else
+            echo "❌ **Code coverage must be at least ${{ inputs.coverageThreshold }}%, but was ${{ steps.checkCoverage.outputs.lineCoverage }}%**" >> ./covered-test-results/reports/SummaryGithub.md
+        fi
+
+    - name: Add test report title
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
+      shell: bash
+      run: echo "# Test Results" >> $GITHUB_STEP_SUMMARY
+
+    - name: Publish test results
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
+      uses: dorny/test-reporter@v2.0.0
+      with:
+        name: Unit Test Results
+        path: "**/*.trx"
+        reporter: dotnet-trx
+
+    - name: Publish code coverage report
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
+      shell: bash
+      run:  |
+        # Replace "# Summary" with "# Code Coverage Results" in the file
+        sed -i 's/# Summary/# Code Coverage Results/' ./covered-test-results/reports/SummaryGithub.md
+
+        # Publish the modified file
+        cat ./covered-test-results/reports/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
