@@ -34,6 +34,10 @@ jobs:
         uses: ./tests/code-coverage-failure-test
         if: always() && steps.setup-tests.outcome == 'success'
 
+      - name: Run test - devcontainer-test
+        uses: ./tests/devcontainer-test
+        if: always() && steps.setup-tests.outcome == 'success'
+
       - name: Add test report title
         if: always()
         shell: bash
