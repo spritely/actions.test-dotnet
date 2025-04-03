@@ -11,6 +11,11 @@ jobs:
         name: Get semantic version
         uses: spritely/actions.semantic-version/get@v0.2.2
 
+      - name: Mark expected failures
+        if: always()
+        run: |
+          echo "::notice::Some tests validate failure behavior so annotations indicating failures is normal and expected. Look at the overall result and test results as a better measure of correctness."
+
       - name: Run test - code-coverage-test
         uses: ./tests/code-coverage-test
         if: always()
@@ -18,6 +23,7 @@ jobs:
       - name: Run test - code-coverage-failure-test
         uses: ./tests/code-coverage-failure-test
         if: always()
+        continue-on-error: true
 
       - name: Add test report title
         if: always()
