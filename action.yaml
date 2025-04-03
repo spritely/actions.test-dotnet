@@ -47,9 +47,9 @@ runs:
       shell: bash
       run: |
         tests_exist=false
-        if test -n "$(find . -type f -iwholename "${{ inputs.unitTestProjects }}" -print -quit)"; then
+        if test -n "$(find . -type f -iwholename "*${{ inputs.unitTestProjects }}" -print -quit)"; then
             echo "Found unit test projects matching ${{ inputs.unitTestProjects }}:"
-            find . -type f -iwholename "${{ inputs.unitTestProjects }}" -exec echo {} \;
+            find . -type f -iwholename "*${{ inputs.unitTestProjects }}" -exec echo {} \;
             tests_exist=true
         else
             echo "No unit test projects found matching ${{ inputs.unitTestProjects }}"
