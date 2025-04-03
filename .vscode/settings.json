@@ -3,9 +3,12 @@
         "devcontainers",
         "dorny",
         "globaltool",
+        "htpasswd",
         "iwholename",
         "reportgenerator",
         "reporttypes",
-        "targetdir"
+        "targetdir",
+        "testpassword",
+        "testuser"
     ]
 }

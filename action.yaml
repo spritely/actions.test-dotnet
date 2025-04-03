@@ -67,6 +67,7 @@ runs:
 
     - id: prepare
       name: Prepare devcontainer environment
+      if: steps.findProjects.outputs.testsExist == 'true'
       shell: bash
       run: |
         mkdir -p ./.devcontainer
