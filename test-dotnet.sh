@@ -1,16 +1,35 @@
 #!/usr/bin/env bash
-
-exitStatus=0
+set -euo pipefail
 
 # To find new versions of dotnet-reportgenerator-globaltool
 # See: https://www.nuget.org/packages/dotnet-reportgenerator-globaltool
 dotnet tool install --create-manifest-if-needed dotnet-reportgenerator-globaltool --version 5.4.5
 
-# Run tests and generate coverage report
-find . -type f -iwholename "*$1" -exec dotnet test {} --configuration Release --collect:"XPlat Code Coverage" --collect:"Code Coverage" --logger:trx --results-directory "covered-test-results/" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura \;
-exitStatus=$((status + $?))
+# Initialize exit status
+exit_status=0
 
-dotnet reportgenerator -targetdir:./covered-test-results/reports/ -reports:./covered-test-results/**/coverage.cobertura.xml -verbosity:Info -reporttypes:"Badges;MarkdownSummary;MarkdownSummaryGitHub;HtmlInline_AzurePipelines_Dark"
-exitStatus=$((status + $?))
+# Store matching project files in an array
+readarray -t projects < <(find . -type f -iwholename "*$1")
 
-exit $exitStatus
+if [ ${#projects[@]} -gt 0 ]; then
+
+    # Temporarily disable exit on error for this command
+    set +e
+
+    for project in "${projects[@]}"; do
+        echo "Running tests on: $project"
+        dotnet test "$project" --configuration Debug --collect:"XPlat Code Coverage" --collect:"Code Coverage" --logger:trx --results-directory "covered-test-results/" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+
+        # Capture any errors
+        exit_status=$((exit_status + $?))
+    done
+
+    # Re-enable exit on error
+    set -e
+
+    # Generate coverage report
+    dotnet reportgenerator -targetdir:./covered-test-results/reports/ -reports:./covered-test-results/**/coverage.cobertura.xml -verbosity:Info -reporttypes:"MarkdownSummaryGitHub"
+fi
+
+# Exit with the status from the tests
+exit $exit_status

@@ -46,7 +46,7 @@ runs:
         registryUsername: testuser
         registryPassword: testpassword
         nugetAuthToken: fake-token
-        unitTestProjects: tests/devcontainer-test/**/*.UnitTests.csproj
+        unitTestProjects: tests/sample-projects/basic/**/*.UnitTests.csproj
         coverageThreshold: 0
         publishResults: false
 

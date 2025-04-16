@@ -31,7 +31,7 @@ runs:
       uses: ./
       with:
         nugetAuthToken: fake-token
-        unitTestProjects: ./tests/code-coverage-test/**/*.UnitTests.csproj
+        unitTestProjects: ./tests/sample-projects/basic/**/*.UnitTests.csproj
         coverageThreshold: "50"
         publishResults: false
 
