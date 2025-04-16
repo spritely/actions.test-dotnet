@@ -34,7 +34,7 @@ runs:
       uses: ./
       with:
         nugetAuthToken: fake-token
-        unitTestProjects: ./tests/code-coverage-test/**/*.UnitTests.csproj
+        unitTestProjects: ./tests/sample-projects/basic/**/*.UnitTests.csproj
         coverageThreshold: "80"
         publishResults: false
       continue-on-error: true # Failures here should not affect the overall build result

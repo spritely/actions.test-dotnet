@@ -8,7 +8,7 @@ runs:
       shell: bash
       run: |
         source ${{ github.workspace }}/tests/test-reporter.sh
-        initialize_test Test custom package registry can be used" "custom-package-registry-test"
+        initialize_test "Test custom package registry can be used" "custom-package-registry-test"
 
     - name: Prepare test environment
       shell: bash
