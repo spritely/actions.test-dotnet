@@ -81,7 +81,7 @@ runs:
         log_file="${{ github.workspace }}/tests/devcontainer-test/logs/test-dotnet.log"
 
         if [ -f "$log_file" ]; then
-            if grep -Fq "test-dotnet.sh: tests/devcontainer-test/**/*.UnitTests.csproj" "$log_file"; then
+            if grep -Fq "test-dotnet.sh: tests/sample-projects/basic/**/*.UnitTests.csproj" "$log_file"; then
                 success "test-dotnet.sh called with expected arguments"
             else
                 failure "test-dotnet.sh was called with unexpected arguments"

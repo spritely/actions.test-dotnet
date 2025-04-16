@@ -30,6 +30,15 @@ jobs:
         run: |
           echo "::notice::Some tests validate failure behavior so annotations indicating failures is normal and expected. Look at the overall result and test results as a better measure of correctness."
 
+      - name: Run tests - test-dotnet
+        uses: devcontainers/ci@v0.3
+        if: always()
+        with:
+          runCmd: |
+            bats --version
+            bats --print-output-on-failure --report-formatter junit --output ./test-results/ ./tests/
+          push: never
+
       - name: Run test - code-coverage-test
         uses: ./tests/code-coverage-test
         if: always() && steps.setup-tests.outcome == 'success'
@@ -45,15 +54,6 @@ jobs:
       - name: Run test - devcontainer-test
         uses: ./tests/devcontainer-test
         if: always() && steps.setup-tests.outcome == 'success'
-
-      - name: Run tests - test-dotnet
-        uses: devcontainers/ci@v0.3
-        if: always()
-        with:
-          runCmd: |
-            bats --version
-            bats --print-output-on-failure --report-formatter junit --output ./test-results/ ./tests/
-          push: never
 
       - name: Add test report title
         if: always()
