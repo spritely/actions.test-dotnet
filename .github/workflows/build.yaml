@@ -20,6 +20,8 @@ jobs:
       - id: setup-tests
         name: Setup test container registry and package server
         run: |
+          mkdir -p test-results
+
           docker run -d -p 5000:5000 \
               -v ${{ github.workspace }}/tests/auth:/auth \
               -e REGISTRY_AUTH=htpasswd \
