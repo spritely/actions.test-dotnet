@@ -16,7 +16,7 @@ runs:
         # Build and publish a test package
         # Test project will pull this package during the test run
         # If it can, then we know the devcontainer can pull packages from private registries
-        cd "${{ github.workspace }}/tests/custom-package-registry-test/TestPackage"
+        cd "${{ github.workspace }}/tests/custom-package-registry-test/PublishPackage"
         dotnet pack -c Release -o "${{ github.workspace }}/tests/custom-package-registry-test/nupkg"
         dotnet nuget push "${{ github.workspace }}/tests/custom-package-registry-test/nupkg/PublishProject.1.0.0.nupkg" --api-key fake-token --source http://localhost:5001/v3/index.json
 

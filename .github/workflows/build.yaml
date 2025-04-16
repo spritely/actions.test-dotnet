@@ -11,8 +11,14 @@ jobs:
         name: Get semantic version
         uses: spritely/actions.semantic-version/get@v0.2.2
 
+      - name: Create .env for build
+        shell: bash
+        run: |
+          cat > ./.devcontainer/.env <<EOF
+          EOF
+
       - id: setup-tests
-        name: Setup test container registry and NuGet server
+        name: Setup test container registry and package server
         run: |
           docker run -d -p 5000:5000 \
               -v ${{ github.workspace }}/tests/auth:/auth \
