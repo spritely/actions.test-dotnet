@@ -10,22 +10,6 @@ runs:
         source ${{ github.workspace }}/tests/test-reporter.sh
         initialize_test "Test dotnet produces code coverage report" "code-coverage-test"
 
-    - name: Prepare test environment
-      shell: bash
-      run: |
-        mkdir -p "${{ github.workspace }}/covered-test-results/"
-
-        # Copy the mock coverage report from the test resources
-        cp -r "${{ github.workspace }}/tests/code-coverage-test/covered-test-results/." "${{ github.workspace }}/covered-test-results/"
-
-        # Back up the original test-dotnet.sh
-        if [ -f "${{ github.workspace }}/test-dotnet.sh" ]; then
-            cp "${{ github.workspace }}/test-dotnet.sh" "${{ github.workspace }}/test-dotnet.sh.bak"
-        fi
-
-        # Replace with our mock version
-        cp "${{ github.workspace }}/tests/code-coverage-test/test-dotnet.sh" "${{ github.workspace }}/test-dotnet.sh"
-
     - id: test
       name: Run test-dotnet action
       uses: ./
@@ -64,15 +48,6 @@ runs:
             success "Coverage threshold check passed"
         else
             failure "Coverage threshold check failed when it should have passed"
-        fi
-
-    - name: Clean up test environment
-      shell: bash
-      if: always()
-      run: |
-        # Restore the original test-dotnet.sh
-        if [ -f "${{ github.workspace }}/test-dotnet.sh.bak" ]; then
-            mv "${{ github.workspace }}/test-dotnet.sh.bak" "${{ github.workspace }}/test-dotnet.sh"
         fi
 
     - name: Finalize test
