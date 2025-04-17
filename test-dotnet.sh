@@ -32,6 +32,9 @@ if [ ${#projects[@]} -gt 0 ]; then
 
     # Replace title "# Summary" with "# Code Coverage Results"
     sed -i 's/# Summary/# Code Coverage Results/' ./covered-test-results/reports/SummaryGithub.md
+
+    # Allow any users to modify these files later
+    chmod -R a+rw ./covered-test-results/
 fi
 
 # Exit with the status from the tests
