@@ -34,10 +34,10 @@ inputs:
 outputs:
   coverageThresholdMet:
     description: Whether the code coverage threshold was met (true/false)
-    value: ${{ steps.checkCoverage.outputs.thresholdMet }}
+    value: ${{ steps.coverage.outputs.thresholdMet }}
   lineCoverage:
     description: The actual code coverage percentage
-    value: ${{ steps.checkCoverage.outputs.lineCoverage }}
+    value: ${{ steps.coverage.outputs.lineCoverage }}
 
 runs:
   using: composite
@@ -106,47 +106,30 @@ runs:
         env: |
           NUGET_USER=${{ github.actor }}
           NUGET_TOKEN=${{ inputs.nugetAuthToken }}
+          COVERAGE_THRESHOLD=${{ inputs.coverageThreshold }}
 
-    - id: checkCoverage
-      name: Check for passing code coverage
-      if: steps.findProjects.outputs.testsExist == 'true' && always()
+    - id: coverage
+      name: Read coverage results
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
       shell: bash
       run: |
-        # Read code coverage
-        # Line should be similar to this:
-        # | **Line coverage:** | 92.6% (830 of 896) | -> 92.6% (830 of 896) -> 92.6%
-        coverage=$(grep "\*\*Line coverage:\*\*" ./covered-test-results/reports/SummaryGithub.md | awk -F '|' '{print $3}' | awk '{print $1}')
+        lineCoverage=0
+        thresholdMet=false
 
-        # Remove the '%' sign for comparison
-        coverage=${coverage%\%}
+        if [ -f "./covered-test-results/reports/SummaryGithub.md" ]; then
+            # Get line coverage
+            coverage=$(grep "\*\*Line coverage:\*\*" ./covered-test-results/reports/SummaryGithub.md | awk -F '|' '{print $3}' | awk '{print $1}')
+            lineCoverage=${coverage%\%}
 
-        # Set output
-        echo "lineCoverage=$coverage" >> $GITHUB_OUTPUT
-
-        # Check if coverage meets threshold
-        if (( $(echo "$coverage < ${{ inputs.coverageThreshold }}" | bc -l) )); then
-            echo "thresholdMet=false" >> $GITHUB_OUTPUT
-            exit 1
-        else
-            echo "thresholdMet=true" >> $GITHUB_OUTPUT
+            # Determine if threshold was met
+            if grep -q "✅ \*\*Coverage threshold met" ./covered-test-results/reports/SummaryGithub.md; then
+                thresholdMet=true
+            fi
         fi
 
-    - name: Prepare code coverage report
-      if: steps.findProjects.outputs.testsExist == 'true' && always()
-      shell: bash
-      run: |
-        # Add the threshold information to the end of the report
-        echo "" >> ./covered-test-results/reports/SummaryGithub.md
-        echo "## Coverage Threshold" >> ./covered-test-results/reports/SummaryGithub.md
-        echo "" >> ./covered-test-results/reports/SummaryGithub.md
-        echo "Required minimum: ${{ inputs.coverageThreshold }}%" >> ./covered-test-results/reports/SummaryGithub.md
-        echo "Actual coverage: ${{ steps.checkCoverage.outputs.lineCoverage }}%" >> ./covered-test-results/reports/SummaryGithub.md
-
-        if [ "${{ steps.checkCoverage.outputs.thresholdMet }}" == "true" ]; then
-            echo "✅ **Coverage threshold met**" >> ./covered-test-results/reports/SummaryGithub.md
-        else
-            echo "❌ **Code coverage must be at least ${{ inputs.coverageThreshold }}%, but was ${{ steps.checkCoverage.outputs.lineCoverage }}%**" >> ./covered-test-results/reports/SummaryGithub.md
-        fi
+        # Output for GitHub Actions
+        echo "lineCoverage=$lineCoverage" >> $GITHUB_OUTPUT
+        echo "thresholdMet=$thresholdMet" >> $GITHUB_OUTPUT
 
     - name: Add test report title
       if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
