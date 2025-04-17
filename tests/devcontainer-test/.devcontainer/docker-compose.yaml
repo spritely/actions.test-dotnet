@@ -7,5 +7,3 @@ services:
     volumes:
       - ../:/src
       - ../tests/devcontainer-test/logs:/logs
-    env_file:
-      - .env

@@ -13,8 +13,6 @@ services:
     volumes:
       - ../:/src
       - ../tests/custom-package-registry-test/logs:/logs
-    env_file:
-      - .env
 
   custom-package-registry-test-package-registry:
     container_name: custom-package-registry-test-package-registry
