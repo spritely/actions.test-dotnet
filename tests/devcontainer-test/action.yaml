@@ -17,7 +17,7 @@ runs:
 
         # Back up existing .devcontainer
         if [ -d "${{ github.workspace }}/.devcontainer" ]; then
-          mv "${{ github.workspace }}/.devcontainer" "${{ github.workspace }}/.devcontainer.bak"
+            mv "${{ github.workspace }}/.devcontainer" "${{ github.workspace }}/.devcontainer.bak"
         fi
 
         # Copy our test .devcontainer to the root
@@ -141,7 +141,7 @@ runs:
         # Restore original .devcontainer
         rm -rf "${{ github.workspace }}/.devcontainer"
         if [ -d "${{ github.workspace }}/.devcontainer.bak" ]; then
-          mv "${{ github.workspace }}/.devcontainer.bak" "${{ github.workspace }}/.devcontainer"
+            mv "${{ github.workspace }}/.devcontainer.bak" "${{ github.workspace }}/.devcontainer"
         fi
 
         # Restore the original test-dotnet.sh

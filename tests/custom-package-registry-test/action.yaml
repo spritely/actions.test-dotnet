@@ -13,12 +13,26 @@ runs:
     - name: Prepare test environment
       shell: bash
       run: |
-        # Build and publish a test package
-        # Test project will pull this package during the test run
-        # If it can, then we know the devcontainer can pull packages from private registries
-        cd "${{ github.workspace }}/tests/custom-package-registry-test/PublishProject"
-        dotnet pack -c Release -o "${{ github.workspace }}/tests/custom-package-registry-test/nupkg"
-        dotnet nuget push "${{ github.workspace }}/tests/custom-package-registry-test/nupkg/PublishProject.1.0.0.nupkg" --api-key fake-token --source http://localhost:5001/v3/index.json
+        # Back up existing .devcontainer
+        if [ -d "${{ github.workspace }}/.devcontainer" ]; then
+            mv "${{ github.workspace }}/.devcontainer" "${{ github.workspace }}/.devcontainer.bak"
+        fi
+
+        # Copy our test .devcontainer to the root
+        cp -r "${{ github.workspace }}/tests/custom-package-registry-test/.devcontainer" "${{ github.workspace }}/"
+
+    - name: Setup test package registry
+      if: steps.findProjects.outputs.testsExist == 'true'
+      uses: devcontainers/ci@v0.3
+      with:
+        runCmd: |
+          # Build and publish a test package
+          # Test project will pull this package during the test run
+          # If it can, then we know the devcontainer can pull packages from private registries
+          cd "/src/tests/custom-package-registry-test/PublishProject"
+          dotnet pack -c Release -o "/src/tests/custom-package-registry-test/nupkg"
+          dotnet nuget push "src/tests/custom-package-registry-test/nupkg/PublishProject.1.0.0.nupkg" --api-key fake-token --source http://custom-package-registry-test-package-registry:5001/v3/index.json
+        push: never
 
     - id: test
       name: Run test-dotnet action
@@ -43,6 +57,16 @@ runs:
             success "NuGet package restore succeeded"
         else
             failure "NuGet package restore failed"
+        fi
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Restore original .devcontainer
+        rm -rf "${{ github.workspace }}/.devcontainer"
+        if [ -d "${{ github.workspace }}/.devcontainer.bak" ]; then
+            mv "${{ github.workspace }}/.devcontainer.bak" "${{ github.workspace }}/.devcontainer"
         fi
 
     - name: Finalize test
