@@ -112,6 +112,8 @@ runs:
       if: steps.findProjects.outputs.testsExist == 'true' && always()
       shell: bash
       run: |
+        # Read code coverage
+        # Line should be similar to this:
         # | **Line coverage:** | 92.6% (830 of 896) | -> 92.6% (830 of 896) -> 92.6%
         coverage=$(grep "\*\*Line coverage:\*\*" ./covered-test-results/reports/SummaryGithub.md | awk -F '|' '{print $3}' | awk '{print $1}')
 
@@ -133,9 +135,6 @@ runs:
       if: steps.findProjects.outputs.testsExist == 'true' && always()
       shell: bash
       run: |
-        # Replace "# Summary" with "# Code Coverage Results" in the file
-        sed -i 's/# Summary/# Code Coverage Results/' ./covered-test-results/reports/SummaryGithub.md
-
         # Add the threshold information to the end of the report
         echo "" >> ./covered-test-results/reports/SummaryGithub.md
         echo "## Coverage Threshold" >> ./covered-test-results/reports/SummaryGithub.md
@@ -165,9 +164,4 @@ runs:
     - name: Publish code coverage report
       if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
       shell: bash
-      run:  |
-        # Replace "# Summary" with "# Code Coverage Results" in the file
-        sed -i 's/# Summary/# Code Coverage Results/' ./covered-test-results/reports/SummaryGithub.md
-
-        # Publish the modified file
-        cat ./covered-test-results/reports/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+      run: cat ./covered-test-results/reports/SummaryGithub.md >> $GITHUB_STEP_SUMMARY

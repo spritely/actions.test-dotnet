@@ -29,6 +29,9 @@ if [ ${#projects[@]} -gt 0 ]; then
 
     # Generate coverage report
     dotnet reportgenerator -targetdir:./covered-test-results/reports/ -reports:./covered-test-results/**/coverage.cobertura.xml -verbosity:Info -reporttypes:"MarkdownSummaryGitHub"
+
+    # Replace title "# Summary" with "# Code Coverage Results"
+    sed -i 's/# Summary/# Code Coverage Results/' ./covered-test-results/reports/SummaryGithub.md
 fi
 
 # Exit with the status from the tests
