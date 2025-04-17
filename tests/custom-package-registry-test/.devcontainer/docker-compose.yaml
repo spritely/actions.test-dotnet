@@ -6,7 +6,7 @@ services:
   custom-package-registry-test-dev:
     container_name: custom-package-registry-test-dev
     # See notes in main Dockerfile about picking this image
-    image: mcr.microsoft.com/dotnet/sdk:VARIANT=8.0.407-noble-amd64
+    image: mcr.microsoft.com/dotnet/sdk:8.0.407-noble-amd64
     command: /bin/sh -c "sleep infinity"
     networks:
       - custom-package-registry-test
