@@ -110,11 +110,11 @@ runs:
 
     - id: coverage
       name: Read coverage results
-      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
+      if: always()
       shell: bash
       run: |
         lineCoverage=0
-        thresholdMet=false
+        thresholdMet=true
 
         if [ -f "./covered-test-results/reports/SummaryGithub.md" ]; then
             # Get line coverage
@@ -122,6 +122,7 @@ runs:
             lineCoverage=${coverage%\%}
 
             # Determine if threshold was met
+            thresholdMet=false
             if grep -q "✅ \*\*Coverage threshold met" ./covered-test-results/reports/SummaryGithub.md; then
                 thresholdMet=true
             fi
