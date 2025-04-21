@@ -32,7 +32,7 @@ jobs:
       - name: Mark expected failures
         if: always()
         run: |
-          echo "::notice::Some tests validate failure behavior so annotations indicating failures is normal and expected. Look at the overall result and test results as a better measure of correctness."
+          echo "::notice::Some tests validate failure behavior so annotations indicating failure are normal and expected. Look at the overall result and test results as a better measure of correctness."
 
       - name: Run tests - test-dotnet
         uses: devcontainers/ci@v0.3
