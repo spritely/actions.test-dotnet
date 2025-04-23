@@ -1,0 +1,76 @@
+name: Test custom package registry can be used
+description: Test to validate that a custom package registry can be used
+
+runs:
+  using: composite
+  steps:
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "Test custom package registry can be used" "custom-package-registry-test"
+
+    - name: Prepare test environment
+      shell: bash
+      run: |
+        # Back up existing .devcontainer
+        if [ -d "${{ github.workspace }}/.devcontainer" ]; then
+            mv "${{ github.workspace }}/.devcontainer" "${{ github.workspace }}/.devcontainer.bak"
+        fi
+
+        # Copy our test .devcontainer to the root
+        cp -r "${{ github.workspace }}/tests/custom-package-registry-test/.devcontainer" "${{ github.workspace }}/"
+
+    - name: Setup test package registry
+      uses: devcontainers/ci@v0.3
+      with:
+        runCmd: |
+          # Build and publish a test package
+          # Test project will pull this package during the test run
+          # If it can, then we know the devcontainer can pull packages from private registries
+          cd "/src/tests/custom-package-registry-test/PublishProject"
+          dotnet pack -c Release -o "/src/tests/custom-package-registry-test/nupkg"
+          dotnet nuget push "/src/tests/custom-package-registry-test/nupkg/PublishProject.1.0.0.nupkg" --api-key fake-token --source http://custom-package-registry-test-package-registry/v3/index.json
+        push: never
+
+    - id: test
+      name: Run test-dotnet action
+      uses: ./
+      with:
+        nugetAuthToken: fake-token
+        unitTestProjects: ./tests/custom-package-registry-test/**/*.UnitTests.csproj
+        coverageThreshold: 0
+        publishResults: false
+
+    - name: Assert package restore succeeded
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert NuGet restore succeeded"
+
+        # If the main action step was successful
+        # Then the test project build and test was successful
+        # And the PublishProject package was pulled from the package registry successfully
+        if [ "${{ steps.test.outcome }}" == "success" ]; then
+            success "NuGet package restore succeeded"
+        else
+            failure "NuGet package restore failed"
+        fi
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Restore original .devcontainer
+        rm -rf "${{ github.workspace }}/.devcontainer"
+        if [ -d "${{ github.workspace }}/.devcontainer.bak" ]; then
+            mv "${{ github.workspace }}/.devcontainer.bak" "${{ github.workspace }}/.devcontainer"
+        fi
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test

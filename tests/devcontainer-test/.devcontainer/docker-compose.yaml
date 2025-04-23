@@ -1,0 +1,11 @@
+services:
+  devcontainer-test-dev:
+    container_name: devcontainer-test-dev
+    image: localhost:5000/devcontainer-test-devcontainer:latest
+    command: /bin/sh -c "sleep infinity"
+    network_mode: "host"
+    volumes:
+      - ../:/src
+      - ../tests/devcontainer-test/logs:/logs
+    env_file:
+      - .env

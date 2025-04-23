@@ -1,0 +1,7 @@
+{
+    "name": "Test .NET 8 Container",
+    "dockerComposeFile": "docker-compose.yaml",
+    "service": "custom-package-registry-test-dev",
+    "workspaceFolder": "/src",
+    "features": {}
+}

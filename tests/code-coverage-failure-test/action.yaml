@@ -1,0 +1,58 @@
+name: Test dotnet fails when code coverage is below threshold
+description: Test to validate that test dotnet fails when code coverage is below threshold
+
+# This test uses all the same files as code-coverage-test
+# Except that it changes the coverageThreshold for success and has different assertions
+
+runs:
+  using: composite
+  steps:
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "Test dotnet fails when code coverage is below threshold" "code-coverage-failure-test"
+
+    - id: test
+      name: Run test-dotnet action
+      uses: ./
+      with:
+        nugetAuthToken: fake-token
+        unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
+        coverageThreshold: "80"
+        publishResults: false
+      continue-on-error: true # Failures here should not affect the overall build result
+
+    - name: Assert coverage threshold check failed
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert coverage threshold check failed"
+
+        if [ "${{ steps.test.outputs.coverageThresholdMet }}" == "false" ]; then
+            success "Coverage threshold check failed as expected"
+        else
+            failure "Coverage threshold check passed when it should have failed"
+        fi
+
+    - name: Assert test action failed
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert test action failed"
+
+        # Check if the action step itself failed (which is expected)
+        if [ "${{ steps.test.outcome }}" == "failure" ]; then
+            success "Action step correctly failed with exit code 1"
+        else
+            failure "Action step did not fail as expected"
+        fi
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test

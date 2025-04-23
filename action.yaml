@@ -1,0 +1,151 @@
+name: Unit test with code coverage
+description: Runs dotnet test on all unitTestProjects, collects code coverage, and reports test and coverage results.
+
+inputs:
+  nugetAuthToken:
+    description: The NuGet authentication token to use to pull packages.
+    required: true
+  unitTestProjects:
+    # It is important to only pass 'Unit' test projects since the build won't be deployed yet and thus these tests cannot depend on anything in the environment to run
+    description: The path to all unit tests projects to run. Defaults to **/*.UnitTests.csproj
+    required: false
+    default: "**/*.UnitTests.csproj"
+  coverageThreshold:
+    description: The minimum code coverage percentage required for the build to pass. Defaults to 90
+    required: false
+    default: "90"
+  publishResults:
+    description: Whether to publish test and coverage results to GitHub step summary. Defaults to true. Set to 'false' to disable publishing.
+    required: false
+    default: 'true'
+  registryHost:
+    description: The host of the container registry to pull devcontainers from. If not provided, no login will be performed.
+    required: false
+    default: ''
+  registryUsername:
+    description: The username to use to authenticate with the container registry for pulling devcontainers. If not provided, no login will be performed.
+    required: false
+    default: ''
+  registryPassword:
+    description: The token to use to authenticate with the container registry for pulling devcontainers. If not provided, no login will be performed.
+    required: false
+    default: ''
+
+outputs:
+  coverageThresholdMet:
+    description: Whether the code coverage threshold was met (true/false)
+    value: ${{ steps.coverage.outputs.thresholdMet }}
+  lineCoverage:
+    description: The actual code coverage percentage
+    value: ${{ steps.coverage.outputs.lineCoverage }}
+
+runs:
+  using: composite
+  steps:
+    - id: findProjects
+      name: Find unit test projects - ${{ inputs.unitTestProjects }}
+      shell: bash
+      run: |
+        tests_exist=false
+        if test -n "$(find . -type f -iwholename "*${{ inputs.unitTestProjects }}" -print -quit)"; then
+            echo "Found unit test projects matching ${{ inputs.unitTestProjects }}:"
+            find . -type f -iwholename "*${{ inputs.unitTestProjects }}" -exec echo {} \;
+            tests_exist=true
+        else
+            echo "No unit test projects found matching ${{ inputs.unitTestProjects }}"
+            echo "Skipping remaining unit test tasks";
+        fi
+        echo "testsExist=$tests_exist" >> $GITHUB_OUTPUT
+
+    - name: Login to GitHub Container Registry
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ inputs.registryHost }}
+        username: ${{ inputs.registryUsername }}
+        password: ${{ inputs.registryPassword }}
+
+    - id: prepare
+      name: Prepare devcontainer environment
+      if: steps.findProjects.outputs.testsExist == 'true'
+      shell: bash
+      run: |
+        mkdir -p ./.devcontainer
+        touch ./.devcontainer/.env
+
+        # Need to copy the build script files to a path that will work inside the devcontainer
+        # Find a path that will not conflict with user files
+        base_dir=".github-actions-test-dotnet"
+        temp_dir="$base_dir"
+        counter=1
+
+        # Find a unique directory name
+        while [ -e "$temp_dir" ]; do
+          temp_dir="${base_dir}-${counter}"
+          counter=$((counter + 1))
+        done
+
+        # Create the directory and copy the script
+        mkdir -p "$temp_dir"
+        cp "${{ github.action_path }}/test-dotnet.sh" "$temp_dir/test-dotnet.sh"
+        chmod +x "$temp_dir/test-dotnet.sh"
+
+        echo "Using temporary directory: $temp_dir"
+
+        # Set output variables
+        echo "testDotnetDirectory=$temp_dir" >> $GITHUB_OUTPUT
+
+    - name: Run tests
+      if: steps.findProjects.outputs.testsExist == 'true'
+      uses: devcontainers/ci@v0.3
+      with:
+        runCmd: |
+          chmod +x "/src/${{ steps.prepare.outputs.testDotnetDirectory }}/test-dotnet.sh"
+          "/src/${{ steps.prepare.outputs.testDotnetDirectory }}/test-dotnet.sh" "${{ inputs.unitTestProjects }}"
+        push: never
+        env: |
+          NUGET_USER=${{ github.actor }}
+          NUGET_TOKEN=${{ inputs.nugetAuthToken }}
+          COVERAGE_THRESHOLD=${{ inputs.coverageThreshold }}
+
+    - id: coverage
+      name: Read coverage results
+      if: always()
+      shell: bash
+      run: |
+        lineCoverage=0
+        thresholdMet=true
+
+        if [ -f "./covered-test-results/reports/SummaryGithub.md" ]; then
+            # Get line coverage
+            coverage=$(grep "\*\*Line coverage:\*\*" ./covered-test-results/reports/SummaryGithub.md | awk -F '|' '{print $3}' | awk '{print $1}')
+            lineCoverage=${coverage%\%}
+
+            # Determine if threshold was met
+            thresholdMet=false
+            if grep -q "✅ \*\*Coverage threshold met" ./covered-test-results/reports/SummaryGithub.md; then
+                thresholdMet=true
+            fi
+        fi
+
+        # Output for GitHub Actions
+        echo "lineCoverage=$lineCoverage" >> $GITHUB_OUTPUT
+        echo "thresholdMet=$thresholdMet" >> $GITHUB_OUTPUT
+
+    - name: Add test report title
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
+      shell: bash
+      run: echo "# Test Results" >> $GITHUB_STEP_SUMMARY
+
+    - name: Publish test results
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
+      uses: dorny/test-reporter@v2.0.0
+      with:
+        name: Unit Test Results
+        path: "**/*.trx"
+        reporter: dotnet-trx
+
+    - name: Publish code coverage report
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
+      shell: bash
+      run: cat ./covered-test-results/reports/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
