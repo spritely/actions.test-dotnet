@@ -50,7 +50,7 @@ jobs:
 | `nugetAuthToken`    |   true   |                                 | The NuGet auth token for pulling packages.                              |
 | `unitTestProjects`  |  false   | `**/*.UnitTests.csproj`         | Glob for test projects.                                                 |
 | `coverageThreshold` |  false   | `90`                            | Minimum coverage % to pass.                                             |
-| `publishResults`    |  false   | `true`                          | Publish test & coverage summary to GitHub Steps.                        |
+| `publishResults`    |  false   | `true`                          | Whether to publish results to the GitHub summary.                        |
 | `registryHost`      |  false   | `""`                            | Container registry hostname (for private DevContainer images).          |
 | `registryUsername`  |  false   | `""`                            | Container registry username.                                            |
 | `registryPassword`  |  false   | `""`                            | Container registry password or token.                                   |

@@ -1,0 +1,64 @@
+name: Run tests
+description: Setups up, runs each of the workflow tests in the project, and reports test results
+
+runs:
+  using: composite
+  steps:
+    - id: setup-tests
+      name: Setup test container registry
+      shell: bash
+      run: |
+        docker run -d -p 5000:5000 \
+            -v ${{ github.workspace }}/tests/container-registry:/auth \
+            -e REGISTRY_AUTH=htpasswd \
+            -e REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
+            -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+            --name registry registry:2
+
+    - name: Mark expected failures
+      if: always()
+      shell: bash
+      run: |
+        echo "::notice::Some tests validate failure behavior so annotations indicating failure are normal and expected. Look at the overall result and test results as a better measure of correctness."
+
+    - name: Run tests - test-dotnet
+      uses: devcontainers/ci@v0.3
+      if: always()
+      with:
+        runCmd: |
+          mkdir -p test-results
+          bats --version
+          bats --print-output-on-failure --report-formatter junit --output ./test-results/ ./tests/
+        push: never
+
+    - name: Run test - code-coverage-test
+      uses: ./tests/code-coverage-test
+      if: always() && steps.setup-tests.outcome == 'success'
+
+    - name: Run test - code-coverage-failure-test
+      uses: ./tests/code-coverage-failure-test
+      if: always() && steps.setup-tests.outcome == 'success'
+
+    - name: Run test - custom-package-registry-test
+      uses: ./tests/custom-package-registry-test
+      if: always() && steps.setup-tests.outcome == 'success'
+
+    - name: Run test - devcontainer-test
+      uses: ./tests/devcontainer-test
+      if: always() && steps.setup-tests.outcome == 'success'
+
+    - name: Add test report title
+      if: always()
+      shell: bash
+      run: |
+        echo "# Test Results" >> $GITHUB_STEP_SUMMARY
+
+        cp ./test-results/*.xml /tmp/test-results
+
+    - name: Generate test report
+      uses: dorny/test-reporter@v2.0.0
+      if: always()
+      with:
+        name: Test Results
+        path: /tmp/test-results/*.xml
+        reporter: java-junit

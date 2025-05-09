@@ -14,22 +14,22 @@ inputs:
     description: The minimum code coverage percentage required for the build to pass. Defaults to 90
     required: false
     default: "90"
-  publishResults:
-    description: Whether to publish test and coverage results to GitHub step summary. Defaults to true. Set to 'false' to disable publishing.
-    required: false
-    default: 'true'
   registryHost:
     description: The host of the container registry to pull devcontainers from. If not provided, no login will be performed.
     required: false
-    default: ''
+    default: ""
   registryUsername:
     description: The username to use to authenticate with the container registry for pulling devcontainers. If not provided, no login will be performed.
     required: false
-    default: ''
+    default: ""
   registryPassword:
     description: The token to use to authenticate with the container registry for pulling devcontainers. If not provided, no login will be performed.
     required: false
-    default: ''
+    default: ""
+  writeSummary:
+    description: Whether to write a summary of the test and coverage results to GitHub. Defaults to true.
+    required: false
+    default: "true"
 
 outputs:
   coverageThresholdMet:
@@ -133,12 +133,12 @@ runs:
         echo "thresholdMet=$thresholdMet" >> $GITHUB_OUTPUT
 
     - name: Add test report title
-      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.writeSummary == 'true' && always()
       shell: bash
       run: echo "# Test Results" >> $GITHUB_STEP_SUMMARY
 
     - name: Publish test results
-      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.writeSummary == 'true' && always()
       uses: dorny/test-reporter@v2.0.0
       with:
         name: Unit Test Results
@@ -146,6 +146,6 @@ runs:
         reporter: dotnet-trx
 
     - name: Publish code coverage report
-      if: steps.findProjects.outputs.testsExist == 'true' && inputs.publishResults == 'true' && always()
+      if: steps.findProjects.outputs.testsExist == 'true' && inputs.writeSummary == 'true' && always()
       shell: bash
       run: cat ./covered-test-results/reports/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
