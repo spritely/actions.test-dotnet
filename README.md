@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: spritely/actions.test-dotnet@v1
+      - uses: spritely/actions.test-dotnet@v0.2.0
         with:
           nugetAuthToken: ${{ secrets.NUGET_TOKEN }}
           unitTestProjects: "**/*.Tests.csproj" # Defaults to "**/*.UnitTests.csproj"
@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: spritely/actions.test-dotnet@v1
+      - uses: spritely/actions.test-dotnet@v0.2.0
         with:
           nugetAuthToken: ${{ secrets.NUGET_TOKEN }}
           # Read devcontainers from here
@@ -50,7 +50,7 @@ jobs:
 | `nugetAuthToken`    |   true   |                                 | The NuGet auth token for pulling packages.                              |
 | `unitTestProjects`  |  false   | `**/*.UnitTests.csproj`         | Glob for test projects.                                                 |
 | `coverageThreshold` |  false   | `90`                            | Minimum coverage % to pass.                                             |
-| `publishResults`    |  false   | `true`                          | Whether to publish results to the GitHub summary.                        |
+| `writeSummary`      |  false   | `true`                          | Whether to write a summary of the test and coverage results to GitHub.  |
 | `registryHost`      |  false   | `""`                            | Container registry hostname (for private DevContainer images).          |
 | `registryUsername`  |  false   | `""`                            | Container registry username.                                            |
 | `registryPassword`  |  false   | `""`                            | Container registry password or token.                                   |
