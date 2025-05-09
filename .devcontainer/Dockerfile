@@ -12,7 +12,7 @@
 # - Use the linux amd64 variant from #2
 # - Choose latest long-term-support (LTS) version of Ubuntu from #3
 # - Select the latest dotnet version from #4 that exists in #1
-ARG VARIANT=8.0.407-noble-amd64
+ARG VARIANT=8.0.408-noble-amd64
 FROM mcr.microsoft.com/dotnet/sdk:${VARIANT}
 
 # Clear this environment variable so xml docs from NuGet packages are unpackaged. The default dotnet/sdk image sets it to 'skip'.
