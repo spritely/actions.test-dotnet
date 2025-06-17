@@ -8,8 +8,10 @@
         "reportgenerator",
         "reporttypes",
         "spritely",
+        "spritelydev",
         "targetdir",
         "testpassword",
-        "testuser"
+        "testuser",
+        "USERPROFILE"
     ]
 }
