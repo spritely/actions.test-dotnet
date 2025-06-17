@@ -48,7 +48,7 @@ runs:
         nugetAuthToken: fake-token
         unitTestProjects: tests/sample-projects/basic/**/*.UnitTests.csproj
         coverageThreshold: 0
-        publishResults: false
+        writeSummary: false
 
     - name: Assert custom devcontainer was used
       shell: bash
