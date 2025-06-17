@@ -56,7 +56,7 @@ runs:
         cp ./test-results/*.xml /tmp/test-results
 
     - name: Generate test report
-      uses: dorny/test-reporter@v2.0.0
+      uses: dorny/test-reporter@v2.1.0
       if: always()
       with:
         name: Test Results
