@@ -1,6 +1,37 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: /
+  - package-ecosystem: docker
+    directories:
+      - "**/*"
     schedule:
       interval: daily
+    ignore:
+      - dependency-name: dotnet/sdk
+        update-types: ["version-update:semver-major"]
+    groups:
+      all-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: docker-compose
+    directories:
+      - "**/*"
+    schedule:
+      interval: daily
+    ignore:
+      - dependency-name: localhost
+      - dependency-name: dotnet/sdk
+        update-types: ["version-update:semver-major"]
+    groups:
+      all-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - "**/*"
+    schedule:
+      interval: daily
+    groups:
+      all-actions:
+        patterns:
+          - "*"
