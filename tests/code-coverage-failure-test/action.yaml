@@ -20,7 +20,7 @@ runs:
         nugetAuthToken: fake-token
         unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
         coverageThreshold: "80"
-        publishResults: false
+        writeSummary: false
       continue-on-error: true # Failures here should not affect the overall build result
 
     - name: Assert coverage threshold check failed

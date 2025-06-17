@@ -40,7 +40,7 @@ runs:
         nugetAuthToken: fake-token
         unitTestProjects: ./tests/custom-package-registry-test/**/*.UnitTests.csproj
         coverageThreshold: 0
-        publishResults: false
+        writeSummary: false
 
     - name: Assert package restore succeeded
       shell: bash
