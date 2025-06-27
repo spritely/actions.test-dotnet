@@ -92,27 +92,6 @@ runs:
             ls -la "${{ github.workspace }}/tests/devcontainer-test/logs/"
         fi
 
-    - name: Assert test script was called with expected NUGET_USER
-      shell: bash
-      if: always()
-      run: |
-        source ${{ github.workspace }}/tests/test-reporter.sh
-        set_test_name "Assert test script was called with expected NUGET_USER"
-
-        log_file="${{ github.workspace }}/tests/devcontainer-test/logs/test-dotnet.log"
-
-        if [ -f "$log_file" ]; then
-            if grep -Fq "NUGET_USER: ${{ github.actor }}" "$log_file"; then
-                success "test-dotnet.sh received expected NUGET_USER"
-            else
-                failure "test-dotnet.sh did not receive expected NUGET_USER"
-            fi
-            cat "$log_file"
-        else
-            failure "test-dotnet log file not found"
-            ls -la "${{ github.workspace }}/tests/devcontainer-test/logs/"
-        fi
-
     - name: Assert test script was called with expected NUGET_TOKEN
       shell: bash
       if: always()

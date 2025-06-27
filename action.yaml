@@ -104,7 +104,6 @@ runs:
           "/src/${{ steps.prepare.outputs.testDotnetDirectory }}/test-dotnet.sh" "${{ inputs.unitTestProjects }}"
         push: never
         env: |
-          NUGET_USER=${{ github.actor }}
           NUGET_TOKEN=${{ inputs.nugetAuthToken }}
           COVERAGE_THRESHOLD=${{ inputs.coverageThreshold }}
 
