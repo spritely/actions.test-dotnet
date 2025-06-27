@@ -9,7 +9,7 @@ updates:
       - dependency-name: dotnet/sdk
         update-types: ["version-update:semver-major"]
     groups:
-      all-actions:
+      all-docker:
         patterns:
           - "*"
   - package-ecosystem: docker-compose
@@ -22,7 +22,7 @@ updates:
       - dependency-name: dotnet/sdk
         update-types: ["version-update:semver-major"]
     groups:
-      all-actions:
+      all-docker-compose:
         patterns:
           - "*"
   - package-ecosystem: github-actions
@@ -32,6 +32,27 @@ updates:
     schedule:
       interval: daily
     groups:
-      all-actions:
+      all-github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: nuget
+    directories:
+      - /tests/custom-package-registry-test/TestProject.UnitTests/
+      - /tests/sample-projects/basic/TestProject.UnitTests/
+      - /tests/sample-projects/broken-compile/TestProject.UnitTests/
+      - /tests/sample-projects/different-naming-pattern/TestProject.Tests/
+      - /tests/sample-projects/failing-tests/TestProject.UnitTests/
+      - /tests/sample-projects/half-covered/TestProject.UnitTests/
+      - /tests/sample-projects/missing-coverage-collector/TestProject.UnitTests/
+      - /tests/sample-projects/multiple/AnotherProject.UnitTests/
+      - /tests/sample-projects/multiple/TestProject.UnitTests/
+    schedule:
+      interval: daily
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      nuget-minor-patch:
         patterns:
           - "*"
