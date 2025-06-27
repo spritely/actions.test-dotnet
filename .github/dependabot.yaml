@@ -53,7 +53,6 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-      - dependency-name: PublishProject # Local test project published to local test package registry
     groups:
       nuget-minor-patch:
         patterns:

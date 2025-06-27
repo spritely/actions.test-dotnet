@@ -1,4 +1,4 @@
-namespace AnotherTest.UnitTests;
+namespace AnotherProject.UnitTests;
 
 public class UnitTest1
 {

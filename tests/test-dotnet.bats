@@ -37,7 +37,7 @@ teardown_file() {
 
     # Verify output contains all project names
     [[ "$output" == *"TestProject.UnitTests"* ]]
-    [[ "$output" == *"AnotherTest.UnitTests"* ]]
+    [[ "$output" == *"AnotherProject.UnitTests"* ]]
 }
 
 @test "test-dotnet handles different naming pattern" {
