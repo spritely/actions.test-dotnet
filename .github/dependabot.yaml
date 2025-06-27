@@ -38,7 +38,8 @@ updates:
 
   - package-ecosystem: nuget
     directories:
-      - /tests/custom-package-registry-test/TestProject.UnitTests/
+      # Dependabot can't update this project because it uses a custom package registry
+      #- /tests/custom-package-registry-test/TestProject.UnitTests/
       - /tests/sample-projects/basic/TestProject.UnitTests/
       - /tests/sample-projects/broken-compile/TestProject.UnitTests/
       - /tests/sample-projects/different-naming-pattern/TestProject.Tests/
