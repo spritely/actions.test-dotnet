@@ -33,7 +33,7 @@ runs:
           dotnet nuget push "/src/tests/custom-package-registry-test/nupkg/PublishProject.1.0.0.nupkg" --api-key fake-token --source http://custom-package-registry-test-package-registry/v3/index.json
         push: never
         env: |
-          NUGET_TOKEN: fake-token
+          NUGET_TOKEN=fake-token
 
     - id: test
       name: Run test-dotnet action
