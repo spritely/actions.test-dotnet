@@ -32,7 +32,7 @@ runs:
           dotnet pack -c Release -o "/src/tests/custom-package-registry-test/nupkg"
           dotnet nuget push "/src/tests/custom-package-registry-test/nupkg/PublishProject.1.0.0.nupkg" --api-key fake-token --source http://custom-package-registry-test-package-registry/v3/index.json
         push: never
-        env:
+        env: |
           NUGET_TOKEN: fake-token
 
     - id: test
