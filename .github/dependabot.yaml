@@ -49,6 +49,8 @@ updates:
       - /tests/sample-projects/multiple/TestProject.UnitTests/
     schedule:
       interval: daily
+    allow:
+      - dependency-type: direct
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
