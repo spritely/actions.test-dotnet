@@ -6,7 +6,7 @@ COVERAGE_THRESHOLD=${COVERAGE_THRESHOLD:-90}
 
 # To find new versions of dotnet-reportgenerator-globaltool
 # See: https://www.nuget.org/packages/dotnet-reportgenerator-globaltool
-dotnet tool install --create-manifest-if-needed dotnet-reportgenerator-globaltool --version 5.4.5
+dotnet tool install --create-manifest-if-needed dotnet-reportgenerator-globaltool --version 5.4.8 --allow-downgrade
 
 # Initialize exit status
 exit_status=0
