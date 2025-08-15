@@ -40,6 +40,7 @@ runs:
       uses: ./
       with:
         nugetAuthToken: fake-token
+        projectFile: ./tests/custom-package-registry-test/PublishProject/PublishProject.csproj
         unitTestProjects: ./tests/custom-package-registry-test/**/*.UnitTests.csproj
         coverageThreshold: 0
         writeSummary: false

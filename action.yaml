@@ -5,6 +5,9 @@ inputs:
   nugetAuthToken:
     description: The NuGet authentication token to use to pull packages.
     required: true
+  projectFile:
+    description: The main project file to build such as MyProject/MyProject.csproj. Include the relative path from the root of the repository if necessary.
+    required: true
   unitTestProjects:
     # It is important to only pass 'Unit' test projects since the build won't be deployed yet and thus these tests cannot depend on anything in the environment to run
     description: The path to all unit tests projects to run. Defaults to **/*.UnitTests.csproj
@@ -58,7 +61,7 @@ runs:
         echo "testsExist=$tests_exist" >> $GITHUB_OUTPUT
 
     - name: Login to GitHub Container Registry
-      if: steps.findProjects.outputs.testsExist == 'true' && inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
+      if: inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
       uses: docker/login-action@v3
       with:
         registry: ${{ inputs.registryHost }}
@@ -67,7 +70,6 @@ runs:
 
     - id: prepare
       name: Prepare devcontainer environment
-      if: steps.findProjects.outputs.testsExist == 'true'
       shell: bash
       run: |
         mkdir -p ./.devcontainer
@@ -94,6 +96,15 @@ runs:
 
         # Set output variables
         echo "testDotnetDirectory=$temp_dir" >> $GITHUB_OUTPUT
+
+    - name: Run build
+      uses: devcontainers/ci@v0.3
+      with:
+        runCmd: |
+          dotnet build "${{ inputs.projectFile }}" --configuration Release
+        push: never
+        env: |
+          NUGET_TOKEN=${{ inputs.nugetAuthToken }}
 
     - name: Run tests
       if: steps.findProjects.outputs.testsExist == 'true'
