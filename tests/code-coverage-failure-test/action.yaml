@@ -18,6 +18,7 @@ runs:
       uses: ./
       with:
         nugetAuthToken: fake-token
+        projectFile: ./tests/sample-projects/half-covered/TestProject/TestProject.csproj
         unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
         coverageThreshold: "80"
         writeSummary: false
