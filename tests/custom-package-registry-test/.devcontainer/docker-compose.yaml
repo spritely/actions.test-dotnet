@@ -5,7 +5,7 @@ networks:
 services:
   custom-package-registry-test-dev:
     container_name: custom-package-registry-test-dev
-    image: mcr.microsoft.com/dotnet/sdk:8.0.413-noble-amd64
+    image: mcr.microsoft.com/dotnet/sdk:8.0.414-noble-amd64
     command: /bin/sh -c "sleep infinity"
     environment:
       - NUGET_TOKEN=${NUGET_TOKEN}
