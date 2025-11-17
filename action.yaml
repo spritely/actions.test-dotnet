@@ -149,7 +149,7 @@ runs:
 
     - name: Publish test results
       if: steps.findProjects.outputs.testsExist == 'true' && inputs.writeSummary == 'true' && always()
-      uses: dorny/test-reporter@v2.1.1
+      uses: dorny/test-reporter@v2.2.0
       with:
         name: Unit Test Results
         path: "**/*.trx"
