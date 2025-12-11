@@ -1,4 +1,5 @@
 # actions.test-dotnet
+
 Runs dotnet test on all unit test projects, collects code coverage, and reports test and coverage results.
 
 ## Usage Examples
@@ -69,11 +70,11 @@ jobs:
 
 ### 1. Unit tests (`test-dotnet.bats`)
 
-Validate core script logic locally in isolation.
+Validate core script logic locally in isolation. These tests are run for versions of dotnet 8, 9, and 10.
 
 ### 2. Workflow tests (`tests/*-test/`)
 
-Verify full GitHub Action behavior using test container registries and package servers. Runs only in GitHub Action pipeline for testing overall workflow.
+Verify full GitHub Action behavior using test container registries and package servers. Runs only in GitHub Action pipeline for testing overall workflow. These tests are targeted at the GitHub Actions workflow and not about the dotnet behavior so elected to not make test versions for each specific version of dotnet since the bats test already provide most of this coverage.
 
 ## DevContainer Decision
 
