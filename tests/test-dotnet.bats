@@ -18,19 +18,20 @@ update_project_version() {
 }
 
 # Helper function to run test with specific .NET version
-run_test_with_version() {
+run_script() {
     local version=$1
-    local project_pattern=$2
+    local project_folder=$2
+    local test_project_pattern=$3
 
-    # Update the specific csproj files to the target version
-    update_project_version "$version" "$project_pattern"
+    # Update ALL csproj files in the project folder to the target version
+    update_project_version "$version" "${project_folder}/**/*.csproj"
 
-    # Run the test script
+    # Run the test script (using the test project pattern)
     # The 'run' command sets $status and $output for the test to use
-    run "${SCRIPT_PATH}" "$project_pattern"
+    run "${SCRIPT_PATH}" "$test_project_pattern"
 
-    # Restore to net10.0 (default to match devcontainer)
-    update_project_version "10.0" "$project_pattern"
+    # Restore ALL projects to net10.0 (default to match devcontainer)
+    update_project_version "10.0" "${project_folder}/**/*.csproj"
 
     # Function returns 0 (success), test will check $status set by 'run' command
 }
@@ -50,7 +51,7 @@ teardown_file() {
 }
 
 @test "[net8.0] test-dotnet successfully runs passing tests and generates coverage report" {
-    run_test_with_version "8.0" "tests/sample-projects/basic/**/*.UnitTests.csproj"
+    run_script "8.0" "tests/sample-projects/basic" "tests/sample-projects/basic/**/*.UnitTests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -59,7 +60,7 @@ teardown_file() {
 }
 
 @test "[net9.0] test-dotnet successfully runs passing tests and generates coverage report" {
-    run_test_with_version "9.0" "tests/sample-projects/basic/**/*.UnitTests.csproj"
+    run_script "9.0" "tests/sample-projects/basic" "tests/sample-projects/basic/**/*.UnitTests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -68,7 +69,7 @@ teardown_file() {
 }
 
 @test "[net10.0] test-dotnet successfully runs passing tests and generates coverage report" {
-    run_test_with_version "10.0" "tests/sample-projects/basic/**/*.UnitTests.csproj"
+    run_script "10.0" "tests/sample-projects/basic" "tests/sample-projects/basic/**/*.UnitTests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -77,7 +78,7 @@ teardown_file() {
 }
 
 @test "[net8.0] test-dotnet handles multiple test projects" {
-    run_test_with_version "8.0" "tests/sample-projects/multiple/**/*.UnitTests.csproj"
+    run_script "8.0" "tests/sample-projects/multiple" "tests/sample-projects/multiple/**/*.UnitTests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -90,7 +91,7 @@ teardown_file() {
 }
 
 @test "[net9.0] test-dotnet handles multiple test projects" {
-    run_test_with_version "9.0" "tests/sample-projects/multiple/**/*.UnitTests.csproj"
+    run_script "9.0" "tests/sample-projects/multiple" "tests/sample-projects/multiple/**/*.UnitTests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -103,7 +104,7 @@ teardown_file() {
 }
 
 @test "[net10.0] test-dotnet handles multiple test projects" {
-    run_test_with_version "10.0" "tests/sample-projects/multiple/**/*.UnitTests.csproj"
+    run_script "10.0" "tests/sample-projects/multiple" "tests/sample-projects/multiple/**/*.UnitTests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -116,7 +117,7 @@ teardown_file() {
 }
 
 @test "[net8.0] test-dotnet handles different naming pattern" {
-    run_test_with_version "8.0" "tests/sample-projects/different-naming-pattern/**/*.Tests.csproj"
+    run_script "8.0" "tests/sample-projects/different-naming-pattern" "tests/sample-projects/different-naming-pattern/**/*.Tests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -125,7 +126,7 @@ teardown_file() {
 }
 
 @test "[net9.0] test-dotnet handles different naming pattern" {
-    run_test_with_version "9.0" "tests/sample-projects/different-naming-pattern/**/*.Tests.csproj"
+    run_script "9.0" "tests/sample-projects/different-naming-pattern" "tests/sample-projects/different-naming-pattern/**/*.Tests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -134,7 +135,7 @@ teardown_file() {
 }
 
 @test "[net10.0] test-dotnet handles different naming pattern" {
-    run_test_with_version "10.0" "tests/sample-projects/different-naming-pattern/**/*.Tests.csproj"
+    run_script "10.0" "tests/sample-projects/different-naming-pattern" "tests/sample-projects/different-naming-pattern/**/*.Tests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -143,7 +144,7 @@ teardown_file() {
 }
 
 @test "[net8.0] test-dotnet fails when compile is broken" {
-    run_test_with_version "8.0" "tests/sample-projects/broken-compile/**/*.UnitTests.csproj"
+    run_script "8.0" "tests/sample-projects/broken-compile" "tests/sample-projects/broken-compile/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -152,7 +153,7 @@ teardown_file() {
 }
 
 @test "[net9.0] test-dotnet fails when compile is broken" {
-    run_test_with_version "9.0" "tests/sample-projects/broken-compile/**/*.UnitTests.csproj"
+    run_script "9.0" "tests/sample-projects/broken-compile" "tests/sample-projects/broken-compile/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -161,7 +162,7 @@ teardown_file() {
 }
 
 @test "[net10.0] test-dotnet fails when compile is broken" {
-    run_test_with_version "10.0" "tests/sample-projects/broken-compile/**/*.UnitTests.csproj"
+    run_script "10.0" "tests/sample-projects/broken-compile" "tests/sample-projects/broken-compile/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -170,7 +171,7 @@ teardown_file() {
 }
 
 @test "[net8.0] test-dotnet fails when tests fail" {
-    run_test_with_version "8.0" "tests/sample-projects/failing-tests/**/*.UnitTests.csproj"
+    run_script "8.0" "tests/sample-projects/failing-tests" "tests/sample-projects/failing-tests/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -179,7 +180,7 @@ teardown_file() {
 }
 
 @test "[net9.0] test-dotnet fails when tests fail" {
-    run_test_with_version "9.0" "tests/sample-projects/failing-tests/**/*.UnitTests.csproj"
+    run_script "9.0" "tests/sample-projects/failing-tests" "tests/sample-projects/failing-tests/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -188,7 +189,7 @@ teardown_file() {
 }
 
 @test "[net10.0] test-dotnet fails when tests fail" {
-    run_test_with_version "10.0" "tests/sample-projects/failing-tests/**/*.UnitTests.csproj"
+    run_script "10.0" "tests/sample-projects/failing-tests" "tests/sample-projects/failing-tests/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -197,7 +198,7 @@ teardown_file() {
 }
 
 @test "[net8.0] test-dotnet fails when coverage collector is missing" {
-    run_test_with_version "8.0" "tests/sample-projects/missing-coverage-collector/**/*.UnitTests.csproj"
+    run_script "8.0" "tests/sample-projects/missing-coverage-collector" "tests/sample-projects/missing-coverage-collector/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -206,7 +207,7 @@ teardown_file() {
 }
 
 @test "[net9.0] test-dotnet fails when coverage collector is missing" {
-    run_test_with_version "9.0" "tests/sample-projects/missing-coverage-collector/**/*.UnitTests.csproj"
+    run_script "9.0" "tests/sample-projects/missing-coverage-collector" "tests/sample-projects/missing-coverage-collector/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -215,7 +216,7 @@ teardown_file() {
 }
 
 @test "[net10.0] test-dotnet fails when coverage collector is missing" {
-    run_test_with_version "10.0" "tests/sample-projects/missing-coverage-collector/**/*.UnitTests.csproj"
+    run_script "10.0" "tests/sample-projects/missing-coverage-collector" "tests/sample-projects/missing-coverage-collector/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -224,7 +225,7 @@ teardown_file() {
 }
 
 @test "[net8.0] test-dotnet fails when project is not a test project" {
-    run_test_with_version "8.0" "tests/sample-projects/non-test-project/**/*.UnitTests.csproj"
+    run_script "8.0" "tests/sample-projects/non-test-project" "tests/sample-projects/non-test-project/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -233,7 +234,7 @@ teardown_file() {
 }
 
 @test "[net9.0] test-dotnet fails when project is not a test project" {
-    run_test_with_version "9.0" "tests/sample-projects/non-test-project/**/*.UnitTests.csproj"
+    run_script "9.0" "tests/sample-projects/non-test-project" "tests/sample-projects/non-test-project/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -242,7 +243,7 @@ teardown_file() {
 }
 
 @test "[net10.0] test-dotnet fails when project is not a test project" {
-    run_test_with_version "10.0" "tests/sample-projects/non-test-project/**/*.UnitTests.csproj"
+    run_script "10.0" "tests/sample-projects/non-test-project" "tests/sample-projects/non-test-project/**/*.UnitTests.csproj"
 
     [ "$status" -ne 0 ]
 
@@ -251,7 +252,7 @@ teardown_file() {
 }
 
 @test "[net8.0] test-dotnet handles no matching test projects" {
-    run_test_with_version "8.0" "tests/sample-projects/non-existent-tests/**/*.UnitTests.csproj"
+    run_script "8.0" "tests/sample-projects/non-existent-tests" "tests/sample-projects/non-existent-tests/**/*.UnitTests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -260,7 +261,7 @@ teardown_file() {
 }
 
 @test "[net9.0] test-dotnet handles no matching test projects" {
-    run_test_with_version "9.0" "tests/sample-projects/non-existent-tests/**/*.UnitTests.csproj"
+    run_script "9.0" "tests/sample-projects/non-existent-tests" "tests/sample-projects/non-existent-tests/**/*.UnitTests.csproj"
 
     [ "$status" -eq 0 ]
 
@@ -269,7 +270,7 @@ teardown_file() {
 }
 
 @test "[net10.0] test-dotnet handles no matching test projects" {
-    run_test_with_version "10.0" "tests/sample-projects/non-existent-tests/**/*.UnitTests.csproj"
+    run_script "10.0" "tests/sample-projects/non-existent-tests" "tests/sample-projects/non-existent-tests/**/*.UnitTests.csproj"
 
     [ "$status" -eq 0 ]
 
