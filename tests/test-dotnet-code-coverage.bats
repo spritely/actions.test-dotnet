@@ -26,7 +26,7 @@ update_project_version() {
 run_script_with_version() {
     local version=$1
     local threshold=$2
-    local project_pattern="${3:-tests/sample-projects/half-covered/**/*.UnitTests.csproj}"
+    local project_pattern=$3
 
     # Update the specific csproj files to the target version
     update_project_version "$version" "$project_pattern"
