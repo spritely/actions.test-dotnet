@@ -13,9 +13,9 @@ jobs:
   test:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
-      - uses: spritely/actions.test-dotnet@v0.2.0
+      - uses: spritely/actions.test-dotnet@v0.3.0
         with:
           nugetAuthToken: ${{ secrets.NUGET_TOKEN }}
           projectFile: "MyProject/MyProject.csproj"
@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: spritely/actions.test-dotnet@v0.2.0
+      - uses: spritely/actions.test-dotnet@v0.3.0
         with:
           nugetAuthToken: ${{ secrets.NUGET_TOKEN }}
           projectFile: "MyProject/MyProject.csproj"
