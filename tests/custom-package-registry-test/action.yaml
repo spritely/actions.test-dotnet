@@ -21,6 +21,14 @@ runs:
         # Copy our test .devcontainer to the root
         cp -r "${{ github.workspace }}/tests/custom-package-registry-test/.devcontainer" "${{ github.workspace }}/"
 
+        # Back up existing NuGet.config if present
+        if [ -f "${{ github.workspace }}/NuGet.config" ]; then
+            mv "${{ github.workspace }}/NuGet.config" "${{ github.workspace }}/NuGet.config.bak"
+        fi
+
+        # Copy NuGet.config to root so dotnet commands can find it
+        cp "${{ github.workspace }}/tests/custom-package-registry-test/NuGet.config" "${{ github.workspace }}/"
+
     - name: Setup test package registry
       uses: devcontainers/ci@v0.3
       with:
@@ -69,6 +77,12 @@ runs:
         rm -rf "${{ github.workspace }}/.devcontainer"
         if [ -d "${{ github.workspace }}/.devcontainer.bak" ]; then
             mv "${{ github.workspace }}/.devcontainer.bak" "${{ github.workspace }}/.devcontainer"
+        fi
+
+        # Restore original NuGet.config
+        rm -f "${{ github.workspace }}/NuGet.config"
+        if [ -f "${{ github.workspace }}/NuGet.config.bak" ]; then
+            mv "${{ github.workspace }}/NuGet.config.bak" "${{ github.workspace }}/NuGet.config"
         fi
 
     - name: Finalize test
