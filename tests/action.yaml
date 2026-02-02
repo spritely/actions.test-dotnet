@@ -22,7 +22,7 @@ runs:
         echo "::notice::Some tests validate failure behavior so annotations indicating failure are normal and expected. Look at the overall result and test results as a better measure of correctness."
 
     - name: Run tests - test-dotnet
-      uses: devcontainers/ci@v0.3
+      uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6
       if: always()
       with:
         runCmd: |
@@ -64,7 +64,7 @@ runs:
         cp ./test-results/*.xml /tmp/test-results
 
     - name: Generate test report
-      uses: dorny/test-reporter@v2.3.0
+      uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637
       if: always()
       with:
         name: Test Results
