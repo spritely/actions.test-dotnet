@@ -30,7 +30,7 @@ runs:
         cp "${{ github.workspace }}/tests/custom-package-registry-test/NuGet.config" "${{ github.workspace }}/"
 
     - name: Setup test package registry
-      uses: devcontainers/ci@v0.3
+      uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6
       with:
         runCmd: |
           # Build and publish a test package
