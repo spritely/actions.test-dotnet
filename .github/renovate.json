@@ -6,7 +6,7 @@
   "platformAutomerge": false,
   "prHourlyLimit": 0,
   "rebaseWhen": "behind-base-branch",
-  "ignorePaths": ["tests/custom-package-registry-test/**"],
+  "ignorePaths": ["**/custom-package-registry-test/**"],
   "packageRules": [
     {
       "description": "dotnet/sdk Docker images: block major updates",
