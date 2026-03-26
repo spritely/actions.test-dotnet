@@ -1,6 +1,6 @@
 {
     "name": "Test Container",
-    "dockerComposeFile": "container-compose.yaml",
+    "dockerComposeFile": "compose.yaml",
     "service": "custom-package-registry-test-dev",
     "workspaceFolder": "/src",
     "features": {}
