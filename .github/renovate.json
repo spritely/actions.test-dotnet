@@ -6,8 +6,12 @@
   "platformAutomerge": false,
   "prHourlyLimit": 0,
   "rebaseWhen": "behind-base-branch",
-  "ignorePaths": ["**/custom-package-registry-test/**"],
   "packageRules": [
+    {
+      "description": "custom-package-registry-test: disable entirely (test fixture with private registry)",
+      "matchFileNames": ["tests/custom-package-registry-test/**"],
+      "enabled": false
+    },
     {
       "description": "dotnet/sdk Docker images: block major updates",
       "matchDatasources": ["docker"],
