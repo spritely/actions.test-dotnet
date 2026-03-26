@@ -98,7 +98,7 @@ runs:
         echo "testDotnetDirectory=$temp_dir" >> $GITHUB_OUTPUT
 
     - name: Run build
-      uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6
+      uses: devcontainers/ci@aefa8862765774c950401d0eb869dd8cb1ccc877
       with:
         runCmd: |
           dotnet build "${{ inputs.projectFile }}" --configuration Release
@@ -108,7 +108,7 @@ runs:
 
     - name: Run tests
       if: steps.findProjects.outputs.testsExist == 'true'
-      uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6
+      uses: devcontainers/ci@aefa8862765774c950401d0eb869dd8cb1ccc877
       with:
         runCmd: |
           chmod +x "/src/${{ steps.prepare.outputs.testDotnetDirectory }}/test-dotnet.sh"
