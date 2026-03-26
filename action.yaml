@@ -62,7 +62,7 @@ runs:
 
     - name: Login to GitHub Container Registry
       if: inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
-      uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+      uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
       with:
         registry: ${{ inputs.registryHost }}
         username: ${{ inputs.registryUsername }}
@@ -98,7 +98,7 @@ runs:
         echo "testDotnetDirectory=$temp_dir" >> $GITHUB_OUTPUT
 
     - name: Run build
-      uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6
+      uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 # v0.3.1900000417
       with:
         runCmd: |
           dotnet build "${{ inputs.projectFile }}" --configuration Release
@@ -108,7 +108,7 @@ runs:
 
     - name: Run tests
       if: steps.findProjects.outputs.testsExist == 'true'
-      uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6
+      uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 # v0.3.1900000417
       with:
         runCmd: |
           chmod +x "/src/${{ steps.prepare.outputs.testDotnetDirectory }}/test-dotnet.sh"
@@ -149,7 +149,7 @@ runs:
 
     - name: Publish test results
       if: steps.findProjects.outputs.testsExist == 'true' && inputs.writeSummary == 'true' && always()
-      uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637
+      uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637 # v2.5.0
       with:
         name: Unit Test Results
         path: "**/*.trx"
