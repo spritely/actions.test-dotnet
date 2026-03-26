@@ -2,12 +2,12 @@ name: Renovate
 
 on:
   workflow_dispatch:
-  # Daily at 1:00AM EST (6:00AM UTC), with a second run at 1:10AM EST (6:10AM UTC)
+  # Daily at 1:00AM EST (6:00AM UTC), with a second run at 1:15AM EST (6:15AM UTC)
   # Tier 4 dependency: containers.dotnet10 -> actions.publish-container -> actions.semantic-version -> containers.base
-  # Run 1 creates PRs, CI validates, Run 2 auto-merges 10 minutes apart.
+  # Run 1 creates PRs, CI validates, Run 2 auto-merges 15 minutes apart.
   schedule:
     - cron: '0 6 * * *'
-    - cron: '10 6 * * *'
+    - cron: '15 6 * * *'
 
 jobs:
   renovate:

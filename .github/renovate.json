@@ -18,8 +18,10 @@
     {
       "description": "localhost images: disable entirely (test fixture)",
       "matchDatasources": ["docker"],
-      "matchPackagePatterns": ["^localhost"],
-      "enabled": false
+      "enabled": false,
+      "matchPackageNames": [
+        "/^localhost/"
+      ]
     },
     {
       "description": "NuGet packages: block major updates",
