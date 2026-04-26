@@ -1,7 +1,7 @@
 services:
   actions-test-dotnet-dev:
     container_name: actions-test-dotnet-dev
-    image: docker.io/spritelydev/dotnet10-devcontainer:0.4.32@sha256:9988380f594563cee76ef88008b9653c9c674d8f279744c02a30f2366497ea34
+    image: docker.io/spritelydev/dotnet10-devcontainer:0.4.33@sha256:31f1b46884245d7f96e26fe9258d06e3f38305c2a7683cfe89d1be1fb9a8dc8a
     privileged: true
     command: /bin/sh -c "sleep infinity"
     volumes:
