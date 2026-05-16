@@ -32,6 +32,13 @@
       "matchDatasources": ["nuget"],
       "matchUpdateTypes": ["major"],
       "enabled": false
+    },
+    {
+      "matchPackageNames": [
+        "spritelydev/dotnet10-devcontainer",
+        "spritely/actions.semantic-version"
+      ],
+      "groupName": "spritely infrastructure"
     }
   ]
 }
