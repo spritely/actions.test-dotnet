@@ -35,7 +35,7 @@
     },
     {
       "matchPackageNames": [
-        "spritelydev/dotnet10-devcontainer",
+        "docker.io/spritelydev/dotnet10-devcontainer",
         "spritely/actions.semantic-version"
       ],
       "groupName": "spritely infrastructure"
