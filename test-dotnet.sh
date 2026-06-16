@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# reportgenerator releases: https://www.nuget.org/packages/dotnet-reportgenerator-globaltool
+# renovate: datasource=nuget depName=dotnet-reportgenerator-globaltool
+REPORTGENERATOR_VERSION="${REPORTGENERATOR_VERSION:-5.4.8}"
+
 # Default threshold if not provided
 COVERAGE_THRESHOLD=${COVERAGE_THRESHOLD:-90}
 
 # To find new versions of dotnet-reportgenerator-globaltool
 # See: https://www.nuget.org/packages/dotnet-reportgenerator-globaltool
-dotnet tool install --create-manifest-if-needed dotnet-reportgenerator-globaltool --version 5.4.8 --allow-downgrade
+dotnet tool install --create-manifest-if-needed dotnet-reportgenerator-globaltool --version $REPORTGENERATOR_VERSION --allow-downgrade
 
 # Initialize exit status
 exit_status=0
@@ -21,7 +25,7 @@ if [ ${#projects[@]} -gt 0 ]; then
 
     for project in "${projects[@]}"; do
         echo "Running tests on: $project"
-        dotnet test "$project" --configuration Debug --collect:"XPlat Code Coverage" --collect:"Code Coverage" --logger:trx --results-directory "covered-test-results/" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+        dotnet test "$project" --configuration Debug --collect:"XPlat Code Coverage" --collect:"Code Coverage" --logger:trx --results-directory "covered-test-results/" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByAttribute=GeneratedCodeAttribute DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.SkipAutoProps=true 'DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByFile=**/*.pb.cs%2c**/*.grpc.cs'
 
         # Capture any errors
         exit_status=$((exit_status + $?))
