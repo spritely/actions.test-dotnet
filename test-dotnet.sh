@@ -49,7 +49,7 @@ if [ ${#projects[@]} -gt 0 ]; then
     coverage=${coverage%\%}
 
     # Ensure exactly 2 decimal places then remove the decimal point
-    coverage_int=$(printf "%.2f" "$coverage" | tr -d '.')
+    coverage_int=$(printf "%.2f" "${coverage:-0}" | tr -d '.')
     threshold_int=$(printf "%.2f" "$COVERAGE_THRESHOLD" | tr -d '.')
 
     if (( coverage_int > 0 )); then

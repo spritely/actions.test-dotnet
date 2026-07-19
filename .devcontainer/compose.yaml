@@ -1,14 +1,20 @@
+name: actions-test-dotnet
+
 services:
-  actions-test-dotnet-dev:
-    container_name: actions-test-dotnet-dev
-    image: docker.io/spritelydev/dotnet10-devcontainer:0.4.142@sha256:40f7a68ed38941b70845171206899841d4efc40cd2b1372cca6404b00173a9a9
+  dev:
+    image: docker.io/spritelydev/dotnet10-devcontainer:0.7.0@sha256:e3767632db422cb3a7a0e011c89e7b3465f16a05cb5f94011fc3192409d35ac6
     privileged: true
     command: /bin/sh -c "sleep infinity"
     volumes:
       - ../:/src
-      - ${HOME:-$USERPROFILE}/.ssh:/root/.ssh:ro
+      # Codex doesn't have environment variables to do this without an
+      # enterprise subscription so map in common auth folder instead
+      - ${HOME:-$USERPROFILE}/.codex:/root/.codex
     env_file:
       - .env
     # Environment variables have higher precedence than the .env file
+    # Bare name variables only pass through if set on the host
     environment:
-      - NUGET_TOKEN=${NUGET_TOKEN}
+      - ANTHROPIC_API_KEY
+      - CLAUDE_CODE_OAUTH_TOKEN
+      - GITHUB_TOKEN
