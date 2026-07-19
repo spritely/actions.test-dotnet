@@ -14,7 +14,7 @@ runs:
       name: Run test-dotnet action
       uses: ./
       with:
-        nugetAuthToken: fake-token
+        githubToken: fake-token
         projectFile: ./tests/sample-projects/no-unit-tests/MainProject/MainProject.csproj
         unitTestProjects: ./tests/sample-projects/no-unit-tests/**/*.UnitTests.csproj
         coverageThreshold: 80

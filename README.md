@@ -18,7 +18,6 @@ jobs:
 
       - uses: spritely/actions.test-dotnet@v0.3.0
         with:
-          nugetAuthToken: ${{ secrets.NUGET_TOKEN }}
           projectFile: "MyProject/MyProject.csproj"
           unitTestProjects: "**/*.Tests.csproj" # Defaults to "**/*.UnitTests.csproj"
           coverageThreshold: 80 # Defaults to 90
@@ -38,7 +37,6 @@ jobs:
 
       - uses: spritely/actions.test-dotnet@v0.3.0
         with:
-          nugetAuthToken: ${{ secrets.NUGET_TOKEN }}
           projectFile: "MyProject/MyProject.csproj"
           # Read devcontainers from here
           registryHost: ghcr.io
@@ -48,16 +46,16 @@ jobs:
 
 ## Inputs
 
-| Name                | Required | Default                         | Description                                                             |
-|---------------------|:--------:|---------------------------------|-------------------------------------------------------------------------|
-| `nugetAuthToken`    |   true   |                                 | The NuGet auth token for pulling packages.                              |
-| `projectFile`       |   true   |                                 | The main project file to build such as MyProject/MyProject.csproj.     |
-| `unitTestProjects`  |  false   | `**/*.UnitTests.csproj`         | Glob for test projects.                                                 |
-| `coverageThreshold` |  false   | `90`                            | Minimum coverage % to pass.                                             |
-| `writeSummary`      |  false   | `true`                          | Whether to write a summary of the test and coverage results to GitHub.  |
-| `registryHost`      |  false   | `""`                            | Container registry hostname (for private DevContainer images).          |
-| `registryUsername`  |  false   | `""`                            | Container registry username.                                            |
-| `registryPassword`  |  false   | `""`                            | Container registry password or token.                                   |
+| Name                | Required | Default                 | Description                                                            |
+|---------------------|----------|-------------------------|------------------------------------------------------------------------|
+| `githubToken`       | false    | `${{ github.token }}`   | The GitHub token to use to pull packages.                              |
+| `projectFile`       | true     |                         | The main project file to build such as MyProject/MyProject.csproj.     |
+| `unitTestProjects`  | false    | `**/*.UnitTests.csproj` | Glob for test projects.                                                |
+| `coverageThreshold` | false    | `90`                    | Minimum coverage % to pass.                                            |
+| `writeSummary`      | false    | `true`                  | Whether to write a summary of the test and coverage results to GitHub. |
+| `registryHost`      | false    | `""`                    | Container registry hostname (for private DevContainer images).         |
+| `registryUsername`  | false    | `""`                    | Container registry username.                                           |
+| `registryPassword`  | false    | `""`                    | Container registry password or token.                                  |
 
 ## Outputs
 

@@ -1,25 +1,17 @@
-networks:
-  custom-package-registry-test:
-    driver: bridge
+name: custom-package-registry
 
 services:
-  custom-package-registry-test-dev:
-    container_name: custom-package-registry-test-dev
+  dev:
     image: mcr.microsoft.com/dotnet/sdk:10.0.101-noble-amd64
     command: /bin/sh -c "sleep infinity"
     environment:
-      - NUGET_TOKEN=${NUGET_TOKEN}
-    networks:
-      - custom-package-registry-test
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
     volumes:
       - ../:/src
       - ../tests/custom-package-registry-test/logs:/logs
 
-  custom-package-registry-test-package-registry:
-    container_name: custom-package-registry-test-package-registry
+  package-registry:
     image: docker.io/loicsharma/baget:0.4.0-preview2
-    networks:
-      - custom-package-registry-test
     environment:
       - ApiKey=fake-token
     ports:

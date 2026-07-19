@@ -45,7 +45,7 @@ runs:
         registryHost: localhost:5000
         registryUsername: testuser
         registryPassword: testpassword
-        nugetAuthToken: fake-token
+        githubToken: fake-token
         projectFile: tests/sample-projects/basic/TestProject.UnitTests/TestProject.UnitTests.csproj
         unitTestProjects: tests/sample-projects/basic/**/*.UnitTests.csproj
         coverageThreshold: 0
@@ -93,20 +93,20 @@ runs:
             ls -la "${{ github.workspace }}/tests/devcontainer-test/logs/"
         fi
 
-    - name: Assert test script was called with expected NUGET_TOKEN
+    - name: Assert test script was called with expected GITHUB_TOKEN
       shell: bash
       if: always()
       run: |
         source ${{ github.workspace }}/tests/test-reporter.sh
-        set_test_name "Assert test script was called with expected NUGET_TOKEN"
+        set_test_name "Assert test script was called with expected GITHUB_TOKEN"
 
         log_file="${{ github.workspace }}/tests/devcontainer-test/logs/test-dotnet.log"
 
         if [ -f "$log_file" ]; then
-            if grep -Fq "NUGET_TOKEN: fake-token" "$log_file"; then
-                success "test-dotnet.sh received expected NUGET_TOKEN"
+            if grep -Fq "GITHUB_TOKEN: fake-token" "$log_file"; then
+                success "test-dotnet.sh received expected GITHUB_TOKEN"
             else
-                failure "test-dotnet.sh did not receive expected NUGET_TOKEN"
+                failure "test-dotnet.sh did not receive expected GITHUB_TOKEN"
             fi
             cat "$log_file"
         else

@@ -2,9 +2,10 @@ name: Unit test with code coverage
 description: Runs dotnet test on all unitTestProjects, collects code coverage, and reports test and coverage results.
 
 inputs:
-  nugetAuthToken:
-    description: The NuGet authentication token to use to pull packages.
-    required: true
+  githubToken:
+    description: The GitHub token to use to pull packages. Defaults to github.token.
+    required: false
+    default: ${{ github.token }}
   projectFile:
     description: The main project file to build such as MyProject/MyProject.csproj. Include the relative path from the root of the repository if necessary.
     required: true
@@ -104,7 +105,7 @@ runs:
           dotnet build "${{ inputs.projectFile }}" --configuration Release
         push: never
         env: |
-          NUGET_TOKEN=${{ inputs.nugetAuthToken }}
+          GITHUB_TOKEN=${{ inputs.githubToken }}
 
     - name: Run tests
       if: steps.findProjects.outputs.testsExist == 'true'
@@ -115,7 +116,7 @@ runs:
           "/src/${{ steps.prepare.outputs.testDotnetDirectory }}/test-dotnet.sh" "${{ inputs.unitTestProjects }}"
         push: never
         env: |
-          NUGET_TOKEN=${{ inputs.nugetAuthToken }}
+          GITHUB_TOKEN=${{ inputs.githubToken }}
           COVERAGE_THRESHOLD=${{ inputs.coverageThreshold }}
 
     - id: coverage

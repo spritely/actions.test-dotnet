@@ -38,16 +38,16 @@ runs:
           # If it can, then we know the devcontainer can pull packages from private registries
           cd "/src/tests/custom-package-registry-test/PublishProject"
           dotnet pack -c Release -o "/src/tests/custom-package-registry-test/nupkg"
-          dotnet nuget push "/src/tests/custom-package-registry-test/nupkg/PublishProject.1.0.0.nupkg" --api-key fake-token --source http://custom-package-registry-test-package-registry/v3/index.json
+          dotnet nuget push "/src/tests/custom-package-registry-test/nupkg/PublishProject.1.0.0.nupkg" --api-key fake-token --source http://package-registry/v3/index.json
         push: never
         env: |
-          NUGET_TOKEN=fake-token
+          GITHUB_TOKEN=fake-token
 
     - id: test
       name: Run test-dotnet action
       uses: ./
       with:
-        nugetAuthToken: fake-token
+        githubToken: fake-token
         projectFile: ./tests/custom-package-registry-test/PublishProject/PublishProject.csproj
         unitTestProjects: ./tests/custom-package-registry-test/**/*.UnitTests.csproj
         coverageThreshold: 0
