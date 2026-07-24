@@ -41,13 +41,13 @@ teardown() {
 }
 
 teardown_file() {
-    # The .NET SDK keeps a background build server (VBCSCompiler) running to speed up subsequent builds.
-    # This process isn't automatically terminated after the script runs.
-    # When you source the script in Bats, any child processes become subprocesses of the Bats test runner.
-    # Bats waits for all subprocesses to exit before completing and thus the last test hangs and never exits.
-    # "dotnet build-server shutdown" gracefully terminates the Razor build server, the VB/C# compiler server,
-    # and the MSBuild server.
-    dotnet build-server shutdown
+    # The .NET SDK leaves a persistent Roslyn compiler server (VBCSCompiler) running to speed up
+    # later builds. It inherits Bats' file descriptors, so if it outlives the suite Bats waits on it
+    # and the final test hangs forever. "dotnet build-server shutdown" is the graceful way to stop it,
+    # but in this non-root devcontainer that client hangs trying to reach the server (and PID 1 is
+    # `sleep infinity`, which never reaps the resulting zombie). Force-kill the server so cleanup is
+    # immediate and can never hang.
+    pkill -f 'Roslyn/bincore/VBCSCompiler' 2>/dev/null || true
 }
 
 @test "[net8.0] test-dotnet successfully runs passing tests and generates coverage report" {
