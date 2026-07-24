@@ -73,9 +73,6 @@ runs:
       name: Prepare devcontainer environment
       shell: bash
       run: |
-        mkdir -p ./.devcontainer
-        touch ./.devcontainer/.env
-
         # Need to copy the build script files to a path that will work inside the devcontainer
         # Find a path that will not conflict with user files
         base_dir=".github-actions-test-dotnet"

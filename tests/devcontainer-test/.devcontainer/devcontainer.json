@@ -1,7 +1,7 @@
 {
     "name": "Test Container",
     "dockerComposeFile": "compose.yaml",
-    "service": "devcontainer-test-dev",
+    "service": "dev",
     "workspaceFolder": "/src",
     "features": {}
 }

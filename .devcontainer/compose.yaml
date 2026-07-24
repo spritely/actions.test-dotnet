@@ -2,19 +2,17 @@ name: actions-test-dotnet
 
 services:
   dev:
-    image: docker.io/spritelydev/dotnet10-devcontainer:0.7.0@sha256:e3767632db422cb3a7a0e011c89e7b3465f16a05cb5f94011fc3192409d35ac6
-    privileged: true
-    command: /bin/sh -c "sleep infinity"
+    image: docker.io/spritelydev/dotnet10-devcontainer:0.8.1@sha256:902ece0673b007734345c70426db032b182d7793386a9cca910a4f76ed9754a7
+    # When running Podman, in order for bind mounts to be editable both inside and outside the
+    # devcontainer, it must either run as `root` or the user id must be translated into the
+    # container properly. Setting userns_mode to "keep-id" tells podman to not shift user ids and
+    # fixes this problem so set environment variable USERNS_MODE=keep-id only if running podman.
+    userns_mode: "${USERNS_MODE:-}"
     volumes:
       - ../:/src
       # Codex doesn't have environment variables to do this without an
       # enterprise subscription so map in common auth folder instead
-      - ${HOME:-$USERPROFILE}/.codex:/root/.codex
+      - ${HOME:-$USERPROFILE}/.codex:/home/dev/.codex
     env_file:
-      - .env
-    # Environment variables have higher precedence than the .env file
-    # Bare name variables only pass through if set on the host
-    environment:
-      - ANTHROPIC_API_KEY
-      - CLAUDE_CODE_OAUTH_TOKEN
-      - GITHUB_TOKEN
+      - path: .env
+        required: false

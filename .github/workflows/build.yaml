@@ -5,17 +5,11 @@ on: [push, workflow_dispatch]
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - id: version
         name: Get semantic version
         uses: spritely/actions.semantic-version/get@a1013c4b4c7ae5b90ac5b39cbc37b9214458dad8 # v0.8.30
-
-      - name: Create .env for build
-        shell: bash
-        run: |
-          cat > ./.devcontainer/.env <<EOF
-          EOF
 
       - name: Run tests
         uses: ./tests

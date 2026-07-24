@@ -2,14 +2,16 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:best-practices"],
   "description": "Automated dependency updates with automerge",
+  "ignorePresets": [":ignoreModulesAndTests"],
   "automerge": true,
   "platformAutomerge": false,
   "prHourlyLimit": 0,
   "rebaseWhen": "behind-base-branch",
   "packageRules": [
     {
-      "description": "custom-package-registry-test: disable entirely (test fixture with private registry)",
+      "description": "custom-package-registry-test: PublishProject only exists on the fixture's private registry, not a real feed, so leave it pinned",
       "matchFileNames": ["tests/custom-package-registry-test/**"],
+      "matchDepNames": ["PublishProject"],
       "enabled": false
     },
     {
