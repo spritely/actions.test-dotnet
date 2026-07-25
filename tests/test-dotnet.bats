@@ -2,6 +2,11 @@
 
 setup() {
     export SCRIPT_PATH="${BATS_TEST_DIRNAME}/../test-dotnet.sh"
+
+    # The devcontainer image only ships the .NET 10 runtime, so the net8.0/net9.0 test hosts
+    # this suite builds have no matching runtime to launch on. Rolling forward across major
+    # versions lets them run on .NET 10.
+    export DOTNET_ROLL_FORWARD=Major
 }
 
 # Helper function to update .NET version in specific csproj files
