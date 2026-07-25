@@ -2,7 +2,7 @@ name: custom-package-registry
 
 services:
   dev:
-    image: mcr.microsoft.com/dotnet/sdk:10.0.301-resolute-amd64
+    image: mcr.microsoft.com/dotnet/sdk:10.0.301-resolute-amd64@sha256:4265886564819acf37ee3510889c0f4600ac13eec1d70edb81ea471e44d435f0
     command: /bin/sh -c "sleep infinity"
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
@@ -11,7 +11,7 @@ services:
       - ../tests/custom-package-registry-test/logs:/logs
 
   package-registry:
-    image: docker.io/loicsharma/baget:0.4.0-preview2
+    image: docker.io/loicsharma/baget:0.4.0-preview2@sha256:7ed7bdc3d29bb5145d69d1ca73b7c5fd4a34f72dd8b2810c907a6703b172b8ba
     environment:
       - ApiKey=fake-token
     ports:
