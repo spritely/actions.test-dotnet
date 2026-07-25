@@ -2,7 +2,7 @@ name: custom-package-registry
 
 services:
   dev:
-    image: mcr.microsoft.com/dotnet/sdk:10.0.301-resolute-amd64@sha256:4265886564819acf37ee3510889c0f4600ac13eec1d70edb81ea471e44d435f0
+    image: mcr.microsoft.com/dotnet/sdk:10.0.302-resolute-amd64@sha256:303563b156b9cccfb5f5316d18088d40e9073ab7fb47de76349c077eefdedbcf
     command: /bin/sh -c "sleep infinity"
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
