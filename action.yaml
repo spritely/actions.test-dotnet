@@ -85,9 +85,10 @@ runs:
           counter=$((counter + 1))
         done
 
-        # Create the directory and copy the script
+        # Create the directory and copy the script together with its default coverage settings
         mkdir -p "$temp_dir"
         cp "${{ github.action_path }}/test-dotnet.sh" "$temp_dir/test-dotnet.sh"
+        cp "${{ github.action_path }}/coverage.settings.xml" "$temp_dir/coverage.settings.xml"
         chmod +x "$temp_dir/test-dotnet.sh"
 
         echo "Using temporary directory: $temp_dir"

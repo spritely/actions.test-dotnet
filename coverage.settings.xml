@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Default Microsoft Code Coverage settings used when tests run on Microsoft.Testing.Platform
+  (test-dotnet.sh passes this file to the test application through the coverage-settings option).
+
+  Equivalent to the coverlet settings passed to the VSTest runner: skip generated code,
+  auto-properties and protobuf/gRPC output.
+
+  See: https://learn.microsoft.com/visualstudio/test/customizing-code-coverage-analysis
+-->
+<Configuration>
+  <CodeCoverage>
+    <SkipAutoProps>True</SkipAutoProps>
+    <Attributes>
+      <Exclude>
+        <Attribute>^System\.CodeDom\.Compiler\.GeneratedCodeAttribute$</Attribute>
+        <Attribute>^System\.Runtime\.CompilerServices\.CompilerGeneratedAttribute$</Attribute>
+        <Attribute>^System\.Diagnostics\.CodeAnalysis\.ExcludeFromCodeCoverageAttribute$</Attribute>
+      </Exclude>
+    </Attributes>
+    <Sources>
+      <Exclude>
+        <Source>.*\.pb\.cs$</Source>
+        <Source>.*\.grpc\.cs$</Source>
+      </Exclude>
+    </Sources>
+  </CodeCoverage>
+</Configuration>

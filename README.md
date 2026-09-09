@@ -64,6 +64,49 @@ jobs:
 | `coverageThresholdMet` | `true` if coverage ≥ threshold, else `false`. |
 | `lineCoverage`         | Actual line coverage percentage (number only).|
 
+## Test runners
+
+`dotnet test` can drive test projects through two runners, and each one takes different options for code coverage and trx reports. The action detects which runner is active the same way the SDK does: when the `global.json` governing the repository contains
+
+```json
+{
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
+  }
+}
+```
+
+tests run on **Microsoft.Testing.Platform (MTP)**; otherwise they run on **VSTest**.
+
+### VSTest (.NET 8, .NET 9, and .NET 10 without the `global.json` switch)
+
+Coverage and trx are produced by data collectors, so each test project needs:
+
+```xml
+<PackageReference Include="coverlet.collector" Version="..." />
+<PackageReference Include="Microsoft.NET.Test.Sdk" Version="..." />
+```
+
+### Microsoft.Testing.Platform (.NET 10 with the `global.json` switch)
+
+`dotnet test` forwards its options straight to the test application, so coverage and trx are produced by MTP extensions that must be referenced by each test project:
+
+```xml
+<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="..." />
+<PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="..." />
+```
+
+The extension versions must be built for the same Microsoft.Testing.Platform major as the test framework, otherwise the test application fails to start:
+
+| Test framework                       | Microsoft.Testing.Platform | `Microsoft.Testing.Extensions.CodeCoverage` | `Microsoft.Testing.Extensions.TrxReport` |
+|--------------------------------------|----------------------------|---------------------------------------------|------------------------------------------|
+| `xunit.v3` 3.x (`xunit.v3.mtp-v1`)   | 1.x                        | 18.0.x                                      | 1.9.x                                    |
+| `xunit.v3` 4.x (`xunit.v3.mtp-v2`)   | 2.x                        | 18.1 and later                              | 2.x                                      |
+
+When a test project runs on MTP without these packages the action fails with a message naming the missing packages instead of the raw `Unknown option '--coverage'` output.
+
+Coverage on MTP is configured through a [Microsoft Code Coverage settings file](https://learn.microsoft.com/visualstudio/test/customizing-code-coverage-analysis). The action always uses its own [`coverage.settings.xml`](coverage.settings.xml), which is equivalent to its VSTest coverlet configuration (auto-properties skipped, generated code and `*.pb.cs` / `*.grpc.cs` files excluded).
+
 ## Testing Strategy
 
 ### 1. Unit tests (`test-dotnet.bats`)
