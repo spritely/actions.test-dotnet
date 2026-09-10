@@ -25,7 +25,24 @@ if [ ${#projects[@]} -gt 0 ]; then
 
     for project in "${projects[@]}"; do
         echo "Running tests on: $project"
-        dotnet test "$project" --configuration Debug --collect:"XPlat Code Coverage" --collect:"Code Coverage" --logger:trx --results-directory "covered-test-results/" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByAttribute=GeneratedCodeAttribute DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.SkipAutoProps=true 'DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByFile=**/*.pb.cs%2c**/*.grpc.cs'
+
+        # Coverage files are named <prefix>.coverage.cobertura.xml; without a prefix coverlet uses a
+        # timestamp (coverage.cobertura.<timestamp>.xml) and projects sharing the results directory
+        # would be hard to tell apart.
+        name=${project##*/}
+        name=${name%.*}
+
+        dotnet test "$project" \
+            --configuration Debug \
+            --results-directory "covered-test-results/" \
+            --report-trx \
+            --coverlet \
+            --coverlet-file-prefix "$name" \
+            --coverlet-output-format cobertura \
+            --coverlet-skip-auto-props \
+            --coverlet-exclude-by-attribute GeneratedCodeAttribute \
+            --coverlet-exclude-by-file "**/*.pb.cs" \
+            --coverlet-exclude-by-file "**/*.grpc.cs"
 
         # Capture any errors
         exit_status=$((exit_status + $?))
@@ -35,7 +52,7 @@ if [ ${#projects[@]} -gt 0 ]; then
     set -e
 
     # Generate coverage report
-    dotnet reportgenerator -targetdir:./covered-test-results/reports/ -reports:./covered-test-results/**/coverage.cobertura.xml -verbosity:Info -reporttypes:"MarkdownSummaryGitHub"
+    dotnet reportgenerator -targetdir:./covered-test-results/reports/ -reports:'./covered-test-results/**/*.cobertura*.xml' -verbosity:Info -reporttypes:"MarkdownSummaryGitHub"
 
     # Replace title "# Summary" with "# Code Coverage Results"
     sed -i 's/# Summary/# Code Coverage Results/' ./covered-test-results/reports/SummaryGithub.md

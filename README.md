@@ -64,11 +64,53 @@ jobs:
 | `coverageThresholdMet` | `true` if coverage ≥ threshold, else `false`. |
 | `lineCoverage`         | Actual line coverage percentage (number only).|
 
+## Requirements
+
+Tests run through **Microsoft.Testing.Platform (MTP)**, the `dotnet test` mode of the .NET 10 SDK in which the options are forwarded straight to the test application. VSTest is not supported.
+
+### 1. Enable MTP in `global.json`
+
+The SDK switches `dotnet test` to MTP from the `global.json` governing the repository:
+
+```json
+{
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
+  }
+}
+```
+
+Without it `dotnet test` runs through VSTest and rejects the options the action passes.
+
+### 2. Reference the MTP extensions in each test project
+
+Code coverage and trx reports are produced by MTP extensions, so each test project needs:
+
+```xml
+<PackageReference Include="coverlet.MTP" Version="..." />
+<PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="..." />
+```
+
+`coverlet.MTP` requires Microsoft.Testing.Platform 2.0 or later, so the test framework must be built for that major: `xunit.v3` 4.x (`xunit.v3.mtp-v2`), MSTest 3.x or NUnit with its MTP adapter. `xunit.v3` 3.x targets Microsoft.Testing.Platform 1.x and cannot be used. `Microsoft.Testing.Extensions.TrxReport` must be a 2.x version for the same reason.
+
+When a test project lacks these packages the test application rejects `--coverlet` / `--report-trx` and the run fails with a non-zero exit code.
+
+### Coverage settings
+
+The action runs each test project with the [coverlet.MTP](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-code-coverage#coverlet) command line, which keeps the configuration the action used with VSTest:
+
+- `--coverlet-output-format cobertura`
+- `--coverlet-skip-auto-props`
+- `--coverlet-exclude-by-attribute GeneratedCodeAttribute`
+- `--coverlet-exclude-by-file "**/*.pb.cs"` and `"**/*.grpc.cs"`
+
+Every test project writes to `covered-test-results/`; `--coverlet-file-prefix` is set to the project name so coverage files are `<Project>.coverage.cobertura.xml` and never collide. The test assembly itself is never instrumented (it is the Microsoft.Testing.Platform controller process).
+
 ## Testing Strategy
 
 ### 1. Unit tests (`test-dotnet.bats`)
 
-Validate core script logic locally in isolation. These tests are run for versions of dotnet 8, 9, and 10.
+Validate core script logic locally in isolation. These tests are run for target frameworks net8.0, net9.0 and net10.0 (all driven by the .NET 10 SDK, which is where MTP mode of `dotnet test` lives). The repository's own [`global.json`](global.json) enables MTP for every sample project.
 
 ### 2. Workflow tests (`tests/*-test/`)
 
