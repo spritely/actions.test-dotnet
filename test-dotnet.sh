@@ -42,7 +42,8 @@ if [ ${#projects[@]} -gt 0 ]; then
             --coverlet-skip-auto-props \
             --coverlet-exclude-by-attribute GeneratedCodeAttribute \
             --coverlet-exclude-by-file "**/*.pb.cs" \
-            --coverlet-exclude-by-file "**/*.grpc.cs"
+            --coverlet-exclude-by-file "**/*.grpc.cs" \
+            --coverlet-exclude-assemblies-without-sources MissingAll
 
         # Capture any errors
         exit_status=$((exit_status + $?))

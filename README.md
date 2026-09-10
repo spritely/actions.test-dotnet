@@ -103,6 +103,7 @@ The action runs each test project with the [coverlet.MTP](https://learn.microsof
 - `--coverlet-skip-auto-props`
 - `--coverlet-exclude-by-attribute GeneratedCodeAttribute`
 - `--coverlet-exclude-by-file "**/*.pb.cs"` and `"**/*.grpc.cs"`
+- `--coverlet-exclude-assemblies-without-sources MissingAll` — `coverlet.MTP` defaults to `None`, which instruments every referenced assembly that ships a PDB (third-party packages with SourceLink included) and reports them as uncovered; `MissingAll` is what `coverlet.collector` used to do.
 
 Every test project writes to `covered-test-results/`; `--coverlet-file-prefix` is set to the project name so coverage files are `<Project>.coverage.cobertura.xml` and never collide. The test assembly itself is never instrumented (it is the Microsoft.Testing.Platform controller process).
 
