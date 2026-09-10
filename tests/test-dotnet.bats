@@ -62,6 +62,12 @@ teardown_file() {
 
     # Check that the coverage report was generated
     [ -f "./covered-test-results/reports/SummaryGithub.md" ]
+
+    # Check that the trx report was generated where the action publishes it from (**/*.trx)
+    [ -n "$(find ./covered-test-results -name '*.trx' -print -quit)" ]
+
+    # Check that the coverage file carries the project prefix, which is what the report pattern relies on
+    [ -n "$(find ./covered-test-results -name 'TestProject.UnitTests.coverage.cobertura*.xml' -print -quit)" ]
 }
 
 @test "[net9.0] test-dotnet successfully runs passing tests and generates coverage report" {
@@ -71,6 +77,12 @@ teardown_file() {
 
     # Check that the coverage report was generated
     [ -f "./covered-test-results/reports/SummaryGithub.md" ]
+
+    # Check that the trx report was generated where the action publishes it from (**/*.trx)
+    [ -n "$(find ./covered-test-results -name '*.trx' -print -quit)" ]
+
+    # Check that the coverage file carries the project prefix, which is what the report pattern relies on
+    [ -n "$(find ./covered-test-results -name 'TestProject.UnitTests.coverage.cobertura*.xml' -print -quit)" ]
 }
 
 @test "[net10.0] test-dotnet successfully runs passing tests and generates coverage report" {
@@ -80,6 +92,12 @@ teardown_file() {
 
     # Check that the coverage report was generated
     [ -f "./covered-test-results/reports/SummaryGithub.md" ]
+
+    # Check that the trx report was generated where the action publishes it from (**/*.trx)
+    [ -n "$(find ./covered-test-results -name '*.trx' -print -quit)" ]
+
+    # Check that the coverage file carries the project prefix, which is what the report pattern relies on
+    [ -n "$(find ./covered-test-results -name 'TestProject.UnitTests.coverage.cobertura*.xml' -print -quit)" ]
 }
 
 @test "[net8.0] test-dotnet handles multiple test projects" {
@@ -202,27 +220,33 @@ teardown_file() {
     [ -f "./covered-test-results/reports/SummaryGithub.md" ]
 }
 
-@test "[net8.0] test-dotnet fails when coverage collector is missing" {
-    run_script "8.0" "tests/sample-projects/missing-coverage-collector" "tests/sample-projects/missing-coverage-collector/**/*.UnitTests.csproj"
+@test "[net8.0] test-dotnet fails when Microsoft.Testing.Platform extensions are missing" {
+    run_script "8.0" "tests/sample-projects/missing-mtp-extensions" "tests/sample-projects/missing-mtp-extensions/**/*.UnitTests.csproj"
 
+    # The test application rejects --coverlet and --report-trx because coverlet.MTP and
+    # Microsoft.Testing.Extensions.TrxReport are not referenced
     [ "$status" -ne 0 ]
 
     # No coverage report should be generated
     [ ! -f "./covered-test-results/reports/SummaryGithub.md" ]
 }
 
-@test "[net9.0] test-dotnet fails when coverage collector is missing" {
-    run_script "9.0" "tests/sample-projects/missing-coverage-collector" "tests/sample-projects/missing-coverage-collector/**/*.UnitTests.csproj"
+@test "[net9.0] test-dotnet fails when Microsoft.Testing.Platform extensions are missing" {
+    run_script "9.0" "tests/sample-projects/missing-mtp-extensions" "tests/sample-projects/missing-mtp-extensions/**/*.UnitTests.csproj"
 
+    # The test application rejects --coverlet and --report-trx because coverlet.MTP and
+    # Microsoft.Testing.Extensions.TrxReport are not referenced
     [ "$status" -ne 0 ]
 
     # No coverage report should be generated
     [ ! -f "./covered-test-results/reports/SummaryGithub.md" ]
 }
 
-@test "[net10.0] test-dotnet fails when coverage collector is missing" {
-    run_script "10.0" "tests/sample-projects/missing-coverage-collector" "tests/sample-projects/missing-coverage-collector/**/*.UnitTests.csproj"
+@test "[net10.0] test-dotnet fails when Microsoft.Testing.Platform extensions are missing" {
+    run_script "10.0" "tests/sample-projects/missing-mtp-extensions" "tests/sample-projects/missing-mtp-extensions/**/*.UnitTests.csproj"
 
+    # The test application rejects --coverlet and --report-trx because coverlet.MTP and
+    # Microsoft.Testing.Extensions.TrxReport are not referenced
     [ "$status" -ne 0 ]
 
     # No coverage report should be generated
