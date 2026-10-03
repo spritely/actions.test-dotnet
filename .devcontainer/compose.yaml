@@ -2,7 +2,7 @@ name: actions-test-dotnet
 
 services:
   dev:
-    image: docker.io/spritelydev/core-devcontainer:0.1.25@sha256:061a8c3262fc50d191b130ba47beba2dafb5f47e1d40d6353ca33bc0724ebb90
+    image: docker.io/spritelydev/core-devcontainer:0.1.27@sha256:eed12fc14e836fed4049298096c1410c5048771efe5ec8673bb720e727c9c551
     # When running Podman, in order for bind mounts to be editable both inside and outside the
     # devcontainer, it must either run as `root` or the user id must be translated into the
     # container properly. Setting userns_mode to "keep-id" tells podman to not shift user ids and
