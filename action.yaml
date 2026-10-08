@@ -97,6 +97,10 @@ runs:
 
     - name: Run build
       uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca # v0.3.1900000450
+      # The devcontainers CLI generates its Dockerfile outside the build context, which
+      # newer buildx refuses to read unless the entitlement is granted up front.
+      env:
+        BUILDX_BAKE_ENTITLEMENTS_FS: 0
       with:
         runCmd: |
           dotnet build "${{ inputs.projectFile }}" --configuration Release
@@ -107,6 +111,10 @@ runs:
     - name: Run tests
       if: steps.findProjects.outputs.testsExist == 'true'
       uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca # v0.3.1900000450
+      # The devcontainers CLI generates its Dockerfile outside the build context, which
+      # newer buildx refuses to read unless the entitlement is granted up front.
+      env:
+        BUILDX_BAKE_ENTITLEMENTS_FS: 0
       with:
         runCmd: |
           chmod +x "/src/${{ steps.prepare.outputs.testDotnetDirectory }}/test-dotnet.sh"
